@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ER 図・データモデル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#6E6BF0"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">DATA MODEL · v0.1</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:96px;font-weight:900;line-height:1.15;color:#F5F4EF">ER 図・データモデル</h1>
+<p style="font-size:40px;color:#B9BED0;line-height:1.5">issues を中心に、記録・QA・受入・履歴がぶら下がる</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">AIエージェントと人間のタスク管理アプリ</p>
+<p style="font-size:28px;color:#B9BED0">2026-10-11</p>
+</div>
+</section>
+<section id="overview" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<svg aria-label="issues を中心に各テーブルが関連する ER 図" style="position:absolute;left:0px;top:0px;width:1920px;height:1080px" width="1920" height="1080" viewBox="0 0 1920 1080"><g fill="none" stroke="#9AA0B0" stroke-width="2.5"><path d="M275 372 L275 450"/><path d="M275 502 L275 580"/><path d="M390 476 L470 346"/><path d="M390 490 L835 590"/><path d="M605 372 L605 450"/><path d="M720 346 L870 570"/><path d="M605 632 L605 720"/><path d="M720 746 L835 620"/><path d="M970 372 L970 570"/><path d="M1260 372 L1060 570"/><path d="M1580 372 L1085 586"/><path d="M1520 476 L1085 600"/><path d="M1200 606 L1085 606"/><path d="M970 634 L970 720"/><path d="M1200 746 L1085 630"/><path d="M1230 850 L1040 634"/><path d="M1470 746 L1520 746"/><path d="M1470 862 L1590 772"/></g></svg>
+<p style="position:absolute;left:140px;top:320px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">api_tokens</p>
+<p style="position:absolute;left:470px;top:320px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">projects</p>
+<p style="position:absolute;left:835px;top:320px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">issue_links</p>
+<p style="position:absolute;left:1200px;top:320px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">comments</p>
+<p style="position:absolute;left:1520px;top:320px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">checkpoints</p>
+<p style="position:absolute;left:140px;top:450px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">users</p>
+<p style="position:absolute;left:470px;top:450px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">workflow_states</p>
+<p style="position:absolute;left:1520px;top:450px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">qa_details · qa_items</p>
+<p style="position:absolute;left:140px;top:580px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">saved_views</p>
+<p style="position:absolute;left:470px;top:580px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">labels</p>
+<p style="position:absolute;left:1200px;top:580px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">attachments</p>
+<p style="position:absolute;left:470px;top:720px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">issue_labels</p>
+<p style="position:absolute;left:835px;top:720px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">activities</p>
+<p style="position:absolute;left:1200px;top:720px;width:270px;font-size:19px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">acceptance_criteria</p>
+<p style="position:absolute;left:1520px;top:720px;width:270px;font-size:19px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">acceptance_review_items</p>
+<p style="position:absolute;left:1200px;top:850px;width:270px;font-size:22px;color:#1B1F2A;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:10px;padding:12px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">acceptance_reviews</p>
+<p style="position:absolute;left:835px;top:570px;width:270px;font-size:26px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:12px;padding:14px 8px;text-align:center;line-height:1.35;font-family:'JetBrains Mono', 'Courier New', monospace">issues</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · ER 図（全体）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">issues を中心にすべてがつながる</h2>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 15</p>
+<aside>issues は parent_id で自己参照（親子）。checkpoints の author_id、activities の actor_id も users を参照する（線は省略）。</aside>
+</section>
+<section id="t-users" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · テーブル ① 利用者</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">人間とエージェントは同じ users に入る</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">users</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>ULID（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">kind</span></td><td>human | agent</td></tr>
+<tr><td><span style="color:#5B58D6">username</span></td><td>一意。Jira の name</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">display_name</span></td><td>表示名</td></tr>
+<tr><td><span style="color:#5B58D6">email</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">agent_model</span></td><td>agent のみ: モデル名</td></tr>
+<tr><td><span style="color:#5B58D6">avatar_color</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">is_owner</span></td><td>オーナーか</td></tr>
+<tr><td><span style="color:#5B58D6">active</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">password_hash</span></td><td>画面ログイン用（人間のみ）。PBKDF2。空 = なし</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">api_tokens</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">user_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">name</span></td><td>用途名</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">token_hash</span></td><td>SHA-256（一意）</td></tr>
+<tr><td><span style="color:#5B58D6">token_prefix</span></td><td>表示用 tk_ab12</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">last_used_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">expires_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">revoked_at</span></td><td>失効日時</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">token_enc</span></td><td>AES-256-GCM の控え（鍵は data/token.key）</td></tr>
+<tr><td><span style="color:#5B58D6">sessions（別表）</span></td><td>ログイン中の Cookie の SHA-256。期限 1 日 / 30 日（007）</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 15</p>
+</section>
+<section id="t-projects" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · テーブル ② プロジェクト</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">ステータスはプロジェクトごとに持つ</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">projects</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td>Jira 用の数値 ID（10000〜）</td></tr>
+<tr><td><span style="color:#5B58D6">key</span></td><td>APP（一意）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">name</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">description</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">owner_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">next_issue_number</span></td><td>採番カウンタ</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">allow_skip_levels</span></td><td>階層スキップ許可</td></tr>
+<tr><td><span style="color:#5B58D6">tier</span></td><td>focus / normal / side（注力・通常・その他）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">default_qa_assignee_id</span></td><td>QA の既定回答者</td></tr>
+<tr><td><span style="color:#5B58D6">archived_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at / updated_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">workflow_states</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>Jira status id = transition id</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">project_id</span></td><td>→ projects</td></tr>
+<tr><td><span style="color:#5B58D6">name</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">category</span></td><td>backlog … canceled</td></tr>
+<tr><td><span style="color:#5B58D6">applies_to</span></td><td>all | qa</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">color</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">position</span></td><td>並び順</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">is_acceptance</span></td><td>受入待ちフラグ</td></tr>
+<tr><td><span style="color:#5B58D6">is_default</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 15</p>
+</section>
+<section id="t-issues" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · テーブル ③ issues</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">階層・種別・ステータスを1テーブルで持つ</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issues（1/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>ULID（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td>Jira 用の数値 ID</td></tr>
+<tr><td><span style="color:#5B58D6">project_id</span></td><td>→ projects</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">number</span></td><td>プロジェクト内の連番</td></tr>
+<tr><td><span style="color:#5B58D6">key</span></td><td>APP-12（一意）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">type</span></td><td>epic | story | feature | task | qa</td></tr>
+<tr><td><span style="color:#5B58D6">parent_id</span></td><td>自己参照。NULL = ルート</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">title</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">description</span></td><td>Markdown</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">state_id</span></td><td>→ workflow_states</td></tr>
+<tr><td><span style="color:#5B58D6">priority</span></td><td>0 なし … 4 低</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issues（2/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">assignee_id</span></td><td>→ users（人間 / エージェント）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">reporter_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">estimate</span></td><td>見積り</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">due_date</span></td><td>期日</td></tr>
+<tr><td><span style="color:#5B58D6">sort_order</span></td><td>兄弟の並び（fractional index）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">started_at</span></td><td>started へ移った日時</td></tr>
+<tr><td><span style="color:#5B58D6">completed_at</span></td><td>completed の日時</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">canceled_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">deleted_at</span></td><td>論理削除</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">updated_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 15</p>
+</section>
+<section id="t-relations" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · テーブル ④ 関連とコメント</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">ラベル・リンク・コメント</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">labels</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">project_id</span></td><td>→ projects</td></tr>
+<tr><td><span style="color:#5B58D6">name / color</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issue_labels</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>PK, → issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">label_id</span></td><td>PK, → labels</td></tr>
+</table>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issue_links</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">from_issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">to_issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">link_type</span></td><td>blocks | relates | duplicates</td></tr>
+<tr><td><span style="color:#5B58D6">created_by</span></td><td>→ users</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">comments</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td>Jira 用の数値 ID</td></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">author_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">body</span></td><td>Markdown</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>ui | jira | mcp</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">updated_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 15</p>
+</section>
+<section id="t-checkpoints" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · テーブル ⑤ checkpoints</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">エージェントの判断を構造化して残す</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">checkpoints（1/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">author_id</span></td><td>→ users（通常 agent）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">seq</span></td><td>イシュー内の連番</td></tr>
+<tr><td><span style="color:#5B58D6">summary</span></td><td>何をしたか</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">decision</span></td><td>何を判断したか</td></tr>
+<tr><td><span style="color:#5B58D6">rationale</span></td><td>判断基準・理由（必須）</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">checkpoints（2/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">alternatives</span></td><td>検討した代替案（JSON 配列）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">confidence</span></td><td>high | medium | low</td></tr>
+<tr><td><span style="color:#5B58D6">progress</span></td><td>0〜100</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">next_steps</span></td><td>次にすること</td></tr>
+<tr><td><span style="color:#5B58D6">artifacts</span></td><td>JSON: branch, commits, PR, files</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>mcp | jira | api</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:24px;background:#1B1F2A;border-radius:16px;padding:32px 44px">
+<x-icon name="Lightbulb" style="color:#A9A7FF;width:44px;height:44px"></x-icon>
+<p style="font-size:28px;font-weight:500;color:#F5F4EF;line-height:1.5">rationale（判断基準）がこのアプリの中心的な価値。MCP の record_checkpoint でも必須パラメータにする</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">7 / 15</p>
+</section>
+<section id="t-qa" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B85A1E;letter-spacing:2px">07 · テーブル ⑥ qa_details / qa_items</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">QA は issues の拡張 + 複数の質問</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<table style="font-size:19px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#B85A1E"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.35em 0.6em">qa_details（1:1）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif">説明</th></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>PK, → issues（type = qa）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">target_issue_id</span></td><td>質問対象</td></tr>
+<tr><td><span style="color:#5B58D6">context</span></td><td>背景</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">provisional_decision</span></td><td>暫定判断</td></tr>
+<tr><td><span style="color:#5B58D6">is_blocking</span></td><td>ブロッキングか</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">answered_at / closed_at</span></td><td></td></tr>
+</table>
+<table style="font-size:19px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#B85A1E"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.35em 0.6em">qa_items（1:N 質問）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif">説明</th></tr>
+<tr><td><span style="color:#5B58D6">answer_type</span></td><td>5 形式（yes_no, ok_ng, single / multi_choice, text）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">options</span></td><td>選択肢 JSON（推奨つき）</td></tr>
+<tr><td><span style="color:#5B58D6">allow_other / required</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">selected_option_ids</span></td><td>選んだ選択肢（複数可）</td></tr>
+<tr><td><span style="color:#5B58D6">answer_text / answer_note</span></td><td>テキスト回答・補足</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">answered_by / answered_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#8F4415">回答の流れ</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">質問ごとに回答を保存。必須の質問がすべて埋まると「回答済」へ。クローズまでは修正できる</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#8F4415">なぜ issues の種別にするか</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">担当・ステータス・コメント・ORCA での表示など、チケットの機能をそのまま使えるため</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">8 / 15</p>
+</section>
+<section id="t-acceptance" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">08 · テーブル ⑦ 受入検査</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">基準・判定・基準ごとの結果</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_criteria</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues（story / feature）</td></tr>
+<tr><td><span style="color:#5B58D6">position</span></td><td>並び順</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">description</span></td><td>基準の文</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_review_items</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">review_id</span></td><td>PK, → acceptance_reviews</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">criterion_id</span></td><td>PK, → acceptance_criteria</td></tr>
+<tr><td><span style="color:#5B58D6">result</span></td><td>ok | ng | na</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">note</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_reviews</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">round</span></td><td>1, 2, …</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">reviewer_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">verdict</span></td><td>accepted | rejected</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">summary</span></td><td>総評 / 差し戻し理由</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">9 / 15</p>
+</section>
+<section id="t-requirements" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:72px 112px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">要求の層（req_*、マイグレーション 009・2026-11-02）</p>
+<h2 style="font-size:48px;font-weight:700;line-height:1.3;margin-top:8px">新規 11 テーブル（実線）。既存（点線）は列を変えず、つなぐだけ</h2>
+<svg style="position:absolute;left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#5B58D6"/></marker><marker id="g" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#9AA0B0"/></marker></defs><path d="M340 365 L420 365" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M190 440 L190 560" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M720 365 L800 365" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1100 365 L1180 365" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1480 365 L1560 365" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1710 440 L1710 560" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1560 635 L1480 635" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1180 635 L1100 635" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M800 635 L720 635" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M950 710 L950 830" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1100 905 L1180 905" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M1480 905 L1560 905" stroke="#9AA0B0" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#g)"/><path d="M340 905 L420 905" stroke="#5B58D6" stroke-width="3" marker-end="url(#a)"/><path d="M645 440 L875 560" stroke="#5B58D6" stroke-width="2.5" stroke-dasharray="3 6" marker-end="url(#a)"/><path d="M570 290 L570 266 L1710 266 L1710 290" fill="none" stroke="#5B58D6" stroke-width="2.5" stroke-dasharray="3 6" marker-end="url(#a)"/></svg><div style="position:absolute;left:40px;top:290px;width:300px;height:150px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:14px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">projects</div><div style="font-size:18px;line-height:1.45;color:#4A5160">既存</div><div style="font-size:18px;line-height:1.45;color:#4A5160">全 req_* の project_id</div></div><div style="position:absolute;left:40px;top:560px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_counters</div><div style="font-size:18px;line-height:1.45;color:#4A5160">project_id, kind, next</div><div style="font-size:18px;line-height:1.45;color:#4A5160">キーの連番（使い回さない）</div></div><div style="position:absolute;left:40px;top:830px;width:300px;height:150px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:14px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">users</div><div style="font-size:18px;line-height:1.45;color:#4A5160">既存</div><div style="font-size:18px;line-height:1.45;color:#4A5160">変更した人</div></div><div style="position:absolute;left:420px;top:290px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_personas</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-P1 · name, kind</div><div style="font-size:18px;line-height:1.45;color:#4A5160">human | agent</div></div><div style="position:absolute;left:420px;top:560px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_criteria</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-AC42</div><div style="font-size:18px;line-height:1.45;color:#4A5160">given / when / then</div></div><div style="position:absolute;left:420px;top:830px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_changes</div><div style="font-size:18px;line-height:1.45;color:#4A5160">entity_key, action, detail</div><div style="font-size:18px;line-height:1.45;color:#4A5160">変更履歴（版の代わり）</div></div><div style="position:absolute;left:800px;top:290px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_jobs</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-J3</div><div style="font-size:18px;line-height:1.45;color:#4A5160">situation / motivation / outcome</div></div><div style="position:absolute;left:800px;top:560px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_stories</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-ST12 · title</div><div style="font-size:18px;line-height:1.45;color:#4A5160">i_want, so_that, release</div></div><div style="position:absolute;left:800px;top:830px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_story_issues</div><div style="font-size:18px;line-height:1.45;color:#4A5160">story_id, issue_id</div><div style="font-size:18px;line-height:1.45;color:#4A5160">N:N</div></div><div style="position:absolute;left:1180px;top:290px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_job_activities</div><div style="font-size:18px;line-height:1.45;color:#4A5160">job_id, activity_id</div><div style="font-size:18px;line-height:1.45;color:#4A5160">N:N</div></div><div style="position:absolute;left:1180px;top:560px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_story_steps</div><div style="font-size:18px;line-height:1.45;color:#4A5160">story_id, step_id</div><div style="font-size:18px;line-height:1.45;color:#4A5160">N:N</div></div><div style="position:absolute;left:1180px;top:830px;width:300px;height:150px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:14px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">issues</div><div style="font-size:18px;line-height:1.45;color:#4A5160">既存（列は変更なし）</div><div style="font-size:18px;line-height:1.45;color:#4A5160">API の詳細に stories</div></div><div style="position:absolute;left:1560px;top:290px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_activities</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-A1 · name</div><div style="font-size:18px;line-height:1.45;color:#4A5160">persona_id</div></div><div style="position:absolute;left:1560px;top:560px;width:300px;height:150px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:14px 16px"><span style="position:absolute;right:10px;top:10px;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">req_steps</div><div style="font-size:18px;line-height:1.45;color:#4A5160">TAPP-A1-2 · name</div><div style="font-size:18px;line-height:1.45;color:#4A5160">activity_id</div></div><div style="position:absolute;left:1560px;top:830px;width:300px;height:150px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:14px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;font-weight:600;color:#1B1F2A;margin-bottom:8px">acceptance_criteria</div><div style="font-size:18px;line-height:1.45;color:#4A5160">既存（変更なし）</div><div style="font-size:18px;line-height:1.45;color:#4A5160">受け入れ条件から写すだけ</div></div><span style="position:absolute;left:340px;top:335px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:200px;top:486px;width:80px;text-align:left;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:720px;top:335px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">0..1:N</span><span style="position:absolute;left:1100px;top:335px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:1480px;top:335px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">N:1</span><span style="position:absolute;left:1720px;top:486px;width:80px;text-align:left;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:1480px;top:605px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:1100px;top:605px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">N:1</span><span style="position:absolute;left:720px;top:605px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:960px;top:756px;width:80px;text-align:left;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:1100px;top:875px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">N:1</span><span style="position:absolute;left:1480px;top:875px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:340px;top:875px;width:80px;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span><span style="position:absolute;left:768px;top:488px;font-size:16px;color:#4A5160">誰の（NULL 可）</span><span style="position:absolute;left:1040px;top:240px;font-size:16px;color:#4A5160">誰の（NULL 可）</span>
+<p style="position:absolute;left:112px;bottom:30px;font-size:22px;color:#7A8091">10 / 15</p>
+</section>
+<section id="t-misc" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · テーブル ⑧ ビュー・履歴・添付</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">保存ビュー・変更履歴・添付ファイル</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">saved_views</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">project_id</span></td><td>NULL = 横断ビュー</td></tr>
+<tr><td><span style="color:#5B58D6">owner_id</span></td><td>→ users</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">name</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">filter</span></td><td>JSON（domain.Filter）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">display</span></td><td>JSON: layout, group, sort</td></tr>
+<tr><td><span style="color:#5B58D6">position</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at / updated_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">activities</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>連番（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">actor_id</span></td><td>→ users</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>ui | jira | mcp | system</td></tr>
+<tr><td><span style="color:#5B58D6">action</span></td><td>created, updated, state_changed …</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">field</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">old_value / new_value</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">attachments</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">uploader_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">filename / mime_type</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">size</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">storage_path</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">11 / 15</p>
+</section>
+<section id="states" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · 既定のステータス</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">プロジェクト作成時に10個のステータスを作る</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch;">
+<div style="flex:3;display:flex;flex-direction:column">
+<table style="font-size:24px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:30%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">name</th><th style="width:26%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">category</th><th style="width:22%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">applies_to</th><th style="width:22%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">is_acceptance</th></tr>
+<tr><td>Backlog</td><td>backlog</td><td>all</td><td>0</td></tr>
+<tr style="background:#ECEBE4"><td>Todo</td><td>unstarted</td><td>all</td><td>0</td></tr>
+<tr><td>In Progress</td><td>started</td><td>all</td><td>0</td></tr>
+<tr style="background:#ECEBE4"><td>In Review</td><td>started</td><td>all</td><td>0</td></tr>
+<tr><td>受入待ち</td><td>started</td><td>all</td><td>1</td></tr>
+<tr style="background:#ECEBE4"><td>Done</td><td>completed</td><td>all</td><td>0</td></tr>
+<tr><td>Canceled</td><td>canceled</td><td>all</td><td>0</td></tr>
+<tr style="background:#ECEBE4"><td>未回答</td><td>unstarted</td><td>qa</td><td>0</td></tr>
+<tr><td>回答済</td><td>started</td><td>qa</td><td>0</td></tr>
+<tr style="background:#ECEBE4"><td>クローズ</td><td>completed</td><td>qa</td><td>0</td></tr>
+</table>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px;">
+<p style="font-size:26px;line-height:1.6;color:#4A5160;">QA は applies_to = qa の3つだけを使う</p>
+<p style="font-size:26px;line-height:1.6;color:#4A5160;">started / completed / canceled へ移ると started_at・completed_at・canceled_at を設定（Linear と同じ）</p>
+<p style="font-size:26px;line-height:1.6;color:#4A5160;">completed_at は Jira の resolutiondate にも使う</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">12 / 15</p>
+</section>
+<section id="notes" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">11 · 設計メモ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">採番・ID・並び順のルール</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">階層</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">親子規則と循環禁止はサービス層で検証。親と子の project_id は一致させる</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">キー採番</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">作成時、同じトランザクションで projects.next_issue_number を UPDATE … RETURNING して number と key を決める。キー変更は当面不可</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">jira_id</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">Jira API は数値の id を返すため、ULID とは別に連番の数値 ID を持つ（projects・issues・comments・attachments）</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">sort_order</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">兄弟の並び。ドラッグ時は前後の値の中間値を入れる（fractional index）</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">13 / 15</p>
+</section>
+<section id="indexes" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">12 · インデックス</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">一覧・担当・履歴・全文検索を速くする</h2>
+</div>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;line-height:1.55;color:#E6E8EF">CREATE&#160;UNIQUE&#160;INDEX&#160;ux_issues_project_number&#160;ON&#160;issues(project_id,&#160;number);<br>CREATE&#160;INDEX&#160;ix_issues_parent&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;issues(parent_id)&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;WHERE&#160;deleted_at&#160;IS&#160;NULL;<br>CREATE&#160;INDEX&#160;ix_issues_project_state&#160;ON&#160;issues(project_id,&#160;state_id)&#160;WHERE&#160;deleted_at&#160;IS&#160;NULL;<br>CREATE&#160;INDEX&#160;ix_issues_assignee&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;issues(assignee_id,&#160;state_id)&#160;WHERE&#160;deleted_at&#160;IS&#160;NULL;<br>CREATE&#160;INDEX&#160;ix_issues_updated&#160;&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;issues(updated_at);<br>CREATE&#160;INDEX&#160;ix_checkpoints_issue&#160;&#160;&#160;&#160;ON&#160;checkpoints(issue_id,&#160;seq);<br>CREATE&#160;INDEX&#160;ix_checkpoints_created&#160;&#160;ON&#160;checkpoints(created_at);<br>CREATE&#160;INDEX&#160;ix_activities_issue&#160;&#160;&#160;&#160;&#160;ON&#160;activities(issue_id,&#160;created_at);<br>CREATE&#160;INDEX&#160;ix_qa_items_issue&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;qa_items(issue_id,&#160;position);<br><br>--&#160;テキスト検索（JQL&#160;text&#160;~&#160;/&#160;UI&#160;検索）<br>CREATE&#160;VIRTUAL&#160;TABLE&#160;issues_fts&#160;USING&#160;fts5(<br>&#160;&#160;title,&#160;description,&#160;content='issues',&#160;content_rowid='rowid');</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">14 / 15</p>
+</section>
+<section id="queries" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 代表的なクエリ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">子孫の進捗と循環チェックは再帰 CTE</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+<p style="font-size:26px;line-height:1.6;color:#1B1F2A;font-weight:700">子孫と進捗（ツリー・マップ）</p>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;line-height:1.45;color:#E6E8EF">WITH&#160;RECURSIVE&#160;tree(id,&#160;depth)&#160;AS&#160;(<br>&#160;&#160;SELECT&#160;id,&#160;0&#160;FROM&#160;issues<br>&#160;&#160;&#160;WHERE&#160;id&#160;=&#160;:root&#160;AND&#160;deleted_at&#160;IS&#160;NULL<br>&#160;&#160;UNION&#160;ALL<br>&#160;&#160;SELECT&#160;i.id,&#160;t.depth&#160;+&#160;1<br>&#160;&#160;&#160;&#160;FROM&#160;issues&#160;i&#160;JOIN&#160;tree&#160;t<br>&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;i.parent_id&#160;=&#160;t.id<br>&#160;&#160;&#160;WHERE&#160;i.deleted_at&#160;IS&#160;NULL<br>)<br>SELECT&#160;COUNT(*)&#160;AS&#160;descendants,<br>&#160;&#160;SUM(s.category&#160;IN<br>&#160;&#160;&#160;('completed','canceled'))&#160;AS&#160;done<br>FROM&#160;tree&#160;t&#160;JOIN&#160;issues&#160;i&#160;ON&#160;i.id&#160;=&#160;t.id<br>JOIN&#160;workflow_states&#160;s&#160;ON&#160;s.id&#160;=&#160;i.state_id<br>WHERE&#160;t.depth&#160;&gt;&#160;0;</p>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+<p style="font-size:26px;line-height:1.6;color:#1B1F2A;font-weight:700">循環チェック（付け替え前）</p>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;line-height:1.45;color:#E6E8EF">WITH&#160;RECURSIVE&#160;ancestors(id)&#160;AS&#160;(<br>&#160;&#160;SELECT&#160;:new_parent<br>&#160;&#160;UNION&#160;ALL<br>&#160;&#160;SELECT&#160;i.parent_id&#160;FROM&#160;issues&#160;i<br>&#160;&#160;&#160;&#160;JOIN&#160;ancestors&#160;a&#160;ON&#160;i.id&#160;=&#160;a.id<br>&#160;&#160;&#160;WHERE&#160;i.parent_id&#160;IS&#160;NOT&#160;NULL<br>)<br>SELECT&#160;EXISTS&#160;(<br>&#160;&#160;SELECT&#160;1&#160;FROM&#160;ancestors<br>&#160;&#160;&#160;WHERE&#160;id&#160;=&#160;:child<br>);&#160;&#160;--&#160;1&#160;なら循環</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">15 / 15</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

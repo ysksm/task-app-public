@@ -1,0 +1,18 @@
+<section id="jira-v3" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">11 · Jira 互換レイヤー（REST API v3）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">v3 固有の対応: ADF・accountId・新しい検索</h2>
+</div>
+<table style="font-size:26px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:22%;color:#F5F4EF;padding:14px 22px">項目</th><th style="width:78%;color:#F5F4EF">v3 での扱い</th></tr>
+<tr><td>説明・コメント</td><td>ADF（JSON の文書ツリー）。内部は Markdown のまま保存し、internal/jira/adf で相互変換</td></tr>
+<tr style="background:#ECEBE4"><td>ユーザー</td><td>accountId = 内部ユーザー ID。accountType は人間 atlassian / エージェント app</td></tr>
+<tr><td>検索</td><td>POST/GET /search/jql。nextPageToken と isLast でページング</td></tr>
+<tr style="background:#ECEBE4"><td>プロジェクト</td><td>GET /project/search（startAt / maxResults / isLast / values）</td></tr>
+<tr><td>認証</td><td>Basic（メール + API トークン）。ORCA の Cloud モードはこの方式のみ。失敗は必ず 401</td></tr>
+<tr style="background:#ECEBE4"><td>ID・応答</td><td>id は数値（jira_id）。更新・遷移は 204 本文なし。JQL エラーは「Error in the JQL Query」</td></tr>
+</table>
+<p style="font-size:26px;color:#4A5160">ORCA は Cloud モードでも接続先 URL を限定しないため、http://127.0.0.1:7700 をそのまま登録できる</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">13 / 15</p>
+<aside>v2（Server/DC）は今回スコープ外。必要になれば同じ変換レイヤーに追加する。</aside>
+</section>

@@ -1,0 +1,19 @@
+<section id="multidevice" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 複数端末からの利用（§4.12）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">スマホや別の PC からも、ログインして使う</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:12%;color:#F5F4EF;padding:0.4em 0.6em">ID</th><th style="width:88%;color:#F5F4EF;padding:0.4em 0.6em">要求</th></tr>
+<tr><td>MD-01</td><td>--host で外部から接続できるアドレスで待ち受けられる。既定は 127.0.0.1 のまま</td></tr>
+<tr style="background:#ECEBE4"><td>MD-02</td><td>ログイン画面。人間はユーザー名 + パスワード、エージェントはトークンだけ</td></tr>
+<tr><td>MD-03</td><td>パスワードは設定画面と taskapp passwd で設定。8 文字以上、ハッシュで保存し API・エクスポートに出さない</td></tr>
+<tr style="background:#ECEBE4"><td>MD-04</td><td>ログインはサーバーが動いている間だけ有効。ログアウトできる</td></tr>
+<tr><td>MD-05</td><td>パスワードなしの自動ログインは、この PC（接続元と Host がループバック）からだけ</td></tr>
+<tr style="background:#ECEBE4"><td>MD-06</td><td>外部向けで起動したら、暗号化されないことを警告。保護は VPN（Tailscale など）に任せる</td></tr>
+<tr><td>MD-07</td><td>MCP（HTTP）と Jira 互換 API はほかの端末からもトークンで。設定画面に URL を出す</td></tr>
+<tr style="background:#ECEBE4"><td>MD-08（S）</td><td>パスワードの総当たりを遅らせる（続けて失敗したら一時的に断る）</td></tr>
+<tr><td>MD-09（S）</td><td>同じマシンのリバースプロキシ（tailscale serve など）の後ろで動かせる。MCP はプロキシの Host を受け、自動ログインは止める</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">14 / 18</p>
+</section>

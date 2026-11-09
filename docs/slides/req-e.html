@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案 E 実装: A と D をプロジェクトで選ぶ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#5B58D6"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">REQUIREMENTS · OPTION E IMPLEMENTED</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:88px;font-weight:900;line-height:1.2;color:#F5F4EF">案 E 実装<br>A と D をプロジェクトで選ぶ</h1>
+<p style="font-size:38px;color:#B9BED0;line-height:1.5">データは 1 つ、画面は 2 つ。<br>プロジェクトの設定「要求の書き方」で、まず書く（quick）と整理して書く（structured）を切り替える</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">ブランチ exp/req-e · task-app-next/e-both</p>
+<p style="font-size:28px;color:#B9BED0">2026-11-02 · 確認待ち</p>
+</div>
+</section>
+<section id="why" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · なぜ両立できるか</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">A と D の違いは、テーブルではなく画面と「抜け」の見せ方だけ</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #5B58D6"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">同じデータ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">案 D は M1 の 11 テーブルに <b style="color:#1B1F2A">req_stories.body</b> を 1 列足しただけ。ストーリー・条件・置き場所の持ち方は同じ</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #2F7D8C"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">違うのは画面</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">書き始め（ひとこと／マスの ＋）・条件（1 行／3 欄）・ペルソナ（使うときだけ／いつも）・抜け（数／警告）</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #B85A1E"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">だから設定 1 つ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">プロジェクトに <b style="color:#1B1F2A">requirements_mode</b> を持たせ、S15・S16 をそれで切り替える。切り替えてもデータは変わらない</div></div>
+</div>
+<table style="font-size:25px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:34%;color:#F5F4EF;padding:0.45em 0.7em">テスト</th><th style="width:28%;color:#F5F4EF;padding:0.45em 0.7em">件数</th><th style="width:38%;color:#F5F4EF;padding:0.45em 0.7em">増えた分</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">API テスト（言語非依存）</b></td><td style="padding:0.45em 0.7em">210 件すべて成功</td><td style="padding:0.45em 0.7em">+4（requirements-mode.test.ts）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">画面テスト（Playwright）</b></td><td style="padding:0.45em 0.7em">43 件すべて成功</td><td style="padding:0.45em 0.7em">+2（storymap-mode.spec.ts）</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">Go の単体テスト</b></td><td style="padding:0.45em 0.7em">すべて成功</td><td style="padding:0.45em 0.7em">—</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">2 / 12</p>
+</section>
+<section id="setting" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 設定</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">プロジェクト設定の「要求の書き方」</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e1-settings.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">まず書く（quick）</div><div style="font-size:21px;line-height:1.5;color:#4A5160">案 D の画面。新しいプロジェクトの既定</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">整理して書く（structured）</div><div style="font-size:21px;line-height:1.5;color:#4A5160">案 A の画面。前からあるプロジェクトはこちらのまま</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">どこから</div><div style="font-size:21px;line-height:1.5;color:#4A5160">ストーリーマップのヘッダーのモード表示を押すと、ここへ来る</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">3 / 12</p>
+</section>
+<section id="compare" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 何が変わるか</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">まず書く と 整理して書く</h2>
+</div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:22%;color:#F5F4EF;padding:0.45em 0.7em"></th><th style="width:39%;color:#F5F4EF;padding:0.45em 0.7em">まず書く（quick）</th><th style="width:39%;color:#F5F4EF;padding:0.45em 0.7em">整理して書く（structured）</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">書き始め</b></td><td style="padding:0.45em 0.7em">マップの上のひとこと入力 → 未整理の列</td><td style="padding:0.45em 0.7em">手順 × リリースのマスの ＋</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">手順のないもの</b></td><td style="padding:0.45em 0.7em">最初の列「未整理」</td><td style="padding:0.45em 0.7em">マップの上に「⚠ 未整理 N件」（抜け）</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">本文</b></td><td style="padding:0.45em 0.7em">いつも出る</td><td style="padding:0.45em 0.7em">書いてあるときだけ（消えない）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">したいこと・そうすれば</b></td><td style="padding:0.45em 0.7em">「項目を足す」で</td><td style="padding:0.45em 0.7em">いつも出る</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">受け入れ条件</b></td><td style="padding:0.45em 0.7em">1 行。前提・操作は「詳しく」</td><td style="padding:0.45em 0.7em">いつも 3 欄</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">ペルソナ</b></td><td style="padding:0.45em 0.7em">使うときだけ</td><td style="padding:0.45em 0.7em">いつも出る</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">抜け</b></td><td style="padding:0.45em 0.7em">数だけ</td><td style="padding:0.45em 0.7em">警告の色</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">AI（get_storymap）</b></td><td style="padding:0.45em 0.7em">mode: quick。1 行でよい</td><td style="padding:0.45em 0.7em">mode: structured。手順の下に、3 欄で</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">4 / 12</p>
+</section>
+<section id="quick" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · まず書く</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">案 D の画面そのまま</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e2-quick.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">ひとこと入力</div><div style="font-size:21px;line-height:1.5;color:#4A5160">Enter で未整理の列へ</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">本文・1 行の条件</div><div style="font-size:21px;line-height:1.5;color:#4A5160">S16 はタイトルと本文から</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">抜け</div><div style="font-size:21px;line-height:1.5;color:#4A5160">色を付けず数だけ</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">5 / 12</p>
+</section>
+<section id="structured" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · 整理して書く</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">同じデータを案 A の画面で</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e3-structured.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">未整理 N件</div><div style="font-size:21px;line-height:1.5;color:#4A5160">手順のないストーリーはマップの上に、直すものとして出る</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">抜け</div><div style="font-size:21px;line-height:1.5;color:#4A5160">警告の色（橙）</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">ペルソナ</div><div style="font-size:21px;line-height:1.5;color:#4A5160">絞り込みがいつも出る</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">6 / 12</p>
+</section>
+<section id="story" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 整理して書く の S16</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">まず書く で書いたストーリーを開くと</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e4-structured-story.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">本文</div><div style="font-size:21px;line-height:1.5;color:#4A5160">書いてあるので出る。モードを変えても消えない</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">手順が未設定（抜け）</div><div style="font-size:21px;line-height:1.5;color:#4A5160">置き場所を決めるよう促す</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">条件は 3 欄</div><div style="font-size:21px;line-height:1.5;color:#4A5160">1 行で書いた条件は、前提・操作が「—」</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">7 / 12</p>
+</section>
+<section id="api" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">07 · DB・API・MCP の変更点</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">列 1 つ、項目 2 つ</h2>
+</div>
+<table style="font-size:24px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:30%;color:#F5F4EF;padding:0.45em 0.7em">どこ</th><th style="width:70%;color:#F5F4EF;padding:0.45em 0.7em">変更</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">projects</b></td><td style="padding:0.45em 0.7em">requirements_mode TEXT（structured | quick）。マイグレーション 011。列の既定は structured（前からあるプロジェクト）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">POST /projects</b></td><td style="padding:0.45em 0.7em">requirements_mode を指定できる。指定がなければ quick</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">PATCH /projects/{key}</b></td><td style="padding:0.45em 0.7em">requirements_mode を変えられる。ほかの値は 400</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">GET …/storymap・MCP get_storymap</b></td><td style="padding:0.45em 0.7em">mode を返す</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">MCP の説明</b></td><td style="padding:0.45em 0.7em">structured のプロジェクトでは、手順の下に置き、前提・操作・結果を埋め、抜けを直すものとして扱う</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">決まり</b></td><td style="padding:0.45em 0.7em">ストーリーと条件の API はモードで変えない（structured でもタイトルだけを受け付け、抜けに出す）</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">8 / 12</p>
+</section>
+<section id="rl-why" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">08 · リリースのまとまり</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">地図の横線に、ねらいと状態を持たせる</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #5B58D6"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">まとまりを持つ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160"><b style="color:#1B1F2A">req_releases</b>（マイグレーション 012）: 名前・<b style="color:#1B1F2A">ねらい</b>・状態（計画中 / 作っている / 出した）・目安・並び。キーは TAPP-RL1</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #2F7D8C"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">ストーリーは名前で</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ストーリーの release は今のまま文字列。<b style="color:#1B1F2A">名前を変えるとストーリーも付いてくる</b>。新しい名前を書けばまとまりができる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #B85A1E"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">次に出す</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">いちばん上の出していないまとまりに<b style="color:#1B1F2A">次に出す</b>。その上に線を端まで引く（ウォーキングスケルトン）</div></div>
+</div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:18%;color:#F5F4EF;padding:0.45em 0.7em">どこ</th><th style="width:82%;color:#F5F4EF;padding:0.45em 0.7em">変更</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">REST</b></td><td style="padding:0.45em 0.7em">GET/POST /projects/{key}/releases、PATCH/DELETE /projects/{key}/releases/{rkey}（ストーリーがあれば 409）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">storymap</b></td><td style="padding:0.45em 0.7em">releases（名前）が並び順に。release_slices にねらい・状態・n/m 完了</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">MCP</b></td><td style="padding:0.45em 0.7em">get_storymap に release_slices、update_release（名前で探し、なければ作る）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">テスト</b></td><td style="padding:0.45em 0.7em">API 216 件（+6 releases.test.ts）、画面 46 件（+2 storymap-releases.spec.ts）すべて成功</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">9 / 12</p>
+</section>
+<section id="rl-quick" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · まず書く の地図</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">行の見出しに、ねらい・状態・進み具合</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e5-releases-quick.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">R1 次に出す</div><div style="font-size:21px;line-height:1.5;color:#4A5160">ねらい「ログインして、ORCA から自分のタスクを読める」。作っている・1/3 完了・目安</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">線</div><div style="font-size:21px;line-height:1.5;color:#4A5160">次に出す の上の線は地図の端まで</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">見出しで直す</div><div style="font-size:21px;line-height:1.5;color:#4A5160">名前・ねらいはクリックで、状態は選んで。上下に動かせる</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">10 / 12</p>
+</section>
+<section id="rl-structured" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · 整理して書く の地図</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">同じまとまりを、整理して書く でも</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-e/e6-releases-structured.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">同じデータ</div><div style="font-size:21px;line-height:1.5;color:#4A5160">まとまりはモードに関係ない</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">決めたこと</div><div style="font-size:21px;line-height:1.5;color:#4A5160">知らない名前でまとまりができる・状態は人が決める・空のときだけ消せる</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">まだ</div><div style="font-size:21px;line-height:1.5;color:#4A5160">出したものを畳む表示、ドラッグ、S16 で選ぶ形</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">11 / 12</p>
+</section>
+<section id="next" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">11 · 制限と確認したいこと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">モードはプロジェクト単位</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">人ごとではない</div><div style="font-size:21px;line-height:1.5;color:#4A5160">同じプロジェクトを人によって違う画面で見る切り替えはない</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">API はゆるいまま</div><div style="font-size:21px;line-height:1.5;color:#4A5160">structured でもタイトルだけのストーリーを作れる（抜けに出る）</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">3 欄の抜け</div><div style="font-size:21px;line-height:1.5;color:#4A5160">前提・操作が空の条件は抜けの一覧に入れていない</div></div></div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#9AA0B0">1. 既定 → 回答済み</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">既定は OK。作るときに明示的に選ぶ形にした</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#9AA0B0">2. API → 回答済み</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">structured でもタイトルだけを受け付け、抜けとして見せる（問題があれば後で）</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">3. リリースのまとまり</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">決めたこと（知らない名前でできる・状態は人）でよいか。S16 で選ぶ形にするか</div></div>
+</div></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">12 / 12</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

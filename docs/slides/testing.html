@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>テストの使い方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#5B58D6"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">TESTING</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:96px;font-weight:900;line-height:1.15;color:#F5F4EF">テストの使い方</h1>
+<p style="font-size:40px;color:#B9BED0;line-height:1.5">単体・API・画面テストの流し方、失敗の調べ方、書き足し方</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">AIエージェントと人間のタスク管理アプリ</p>
+<p style="font-size:28px;color:#B9BED0">2026-10-12</p>
+</div>
+</section>
+<section id="kinds" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · テストの種類</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">3 種類。API と画面はバイナリを外から操作するだけ</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:14%;color:#F5F4EF;padding:0.4em 0.6em">種類</th><th style="width:32%;color:#F5F4EF;padding:0.4em 0.6em">場所・技術</th><th style="width:10%;color:#F5F4EF;padding:0.4em 0.6em">件数</th><th style="width:44%;color:#F5F4EF;padding:0.4em 0.6em">見ているもの</th></tr><tr><td>単体</td><td>internal/**/*_test.go · Go testing</td><td>—</td><td>階層規則、JQL、ADF、自動バックアップ、この PC の判定、パスワードのハッシュ</td></tr><tr style="background:#ECEBE4"><td>API</td><td>apitest/ · Vitest</td><td>180</td><td>/api/v1、Jira 互換、MCP、ログイン、プロキシの後ろ、CLI（export / backup / restore / passwd）</td></tr><tr><td>画面</td><td>e2e/ · Playwright</td><td>27</td><td>主要画面の操作とログイン。結果は API でも確かめる</td></tr></table>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">TASKAPP_BIN を差し替えれば、Rust など別の実装でも同じテストで振る舞いを確かめられる</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 6</p>
+</section>
+<section id="run" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 流し方</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">make で流す。一部だけなら各ディレクトリで</h2>
+</div>
+<div style="display:flex;gap:36px"><div style="flex:3;display:flex;flex-direction:column;gap:20px"><pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:22px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">$ make test       # 単体 + API（10 秒ほど）
+$ make test-e2e   # 画面（Web UI ごとビルド）
+
+# 初回だけ: ブラウザを入れる
+$ cd e2e &amp;&amp; pnpm exec playwright install chromium
+
+# 一部だけ
+$ cd e2e &amp;&amp; pnpm exec playwright test tests/map.spec.ts
+$ cd e2e &amp;&amp; pnpm exec playwright test -g "drag"
+
+# 別の実装を確かめる
+$ make test-e2e TASKAPP_BIN=/path/to/taskapp</pre></div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">前提</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">Go 1.24+、Node 22+、pnpm。最初に pnpm install</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">並列に流れる</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">テストごとに demo データ入りのサーバーを空きポートで起動するので、互いに影響しない</p></div></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 6</p>
+</section>
+<section id="debug" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 失敗したとき</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">スクリーンショットとトレースで、そのときの画面を見る</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:40%;color:#F5F4EF;padding:0.4em 0.6em">やりたいこと</th><th style="width:60%;color:#F5F4EF;padding:0.4em 0.6em">コマンド（e2e/ の中で）</th></tr><tr><td>失敗の一覧と画面・トレース</td><td>pnpm exec playwright show-report</td></tr><tr style="background:#ECEBE4"><td>1 件のトレース（操作ごとの画面・DOM・通信）</td><td>pnpm exec playwright show-trace test-results/…/trace.zip</td></tr><tr><td>ブラウザを表示しながら</td><td>pnpm exec playwright test --headed</td></tr><tr style="background:#ECEBE4"><td>1 ステップずつ止めながら</td><td>pnpm exec playwright test --debug -g "名前"</td></tr><tr><td>不安定なテストを探す</td><td>pnpm exec playwright test --repeat-each=5</td></tr></table>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">失敗したテストの記録は e2e/test-results/ に残る（git には入らない）</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 6</p>
+</section>
+<section id="how" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · 画面テストの書き方</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">画面で操作し、API でも結果を確かめる</h2>
+</div>
+<div style="display:flex;gap:36px"><div style="flex:3;display:flex;flex-direction:column;gap:20px"><pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:21px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">import { expect, test } from "../fixtures.js";
+
+test("担当を変えるとマイタスクから消える",
+  async ({ page, demo }) =&gt; {
+  await page.goto("/my");
+  await expect(page.getByText("Jira互換API")).toBeVisible();
+  // エージェントとしての操作も API で書ける
+  await demo.api("claude").patch(
+    "/api/v1/issues/APP-12", { assignee: "claude" });
+  await expect(page.getByText("Jira互換API")).toHaveCount(0);
+});</pre></div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">demo.api(who)</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">owner / alice / claude / codex として API を呼ぶ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">peek(page)</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">右の詳細パネル。data-issue-key で開いているイシューを確かめる</p></div></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 6</p>
+</section>
+<section id="write" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · 書くときの決まり</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">文言とロールで探し、待ってから数える</h2>
+</div>
+<div style="display:flex;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">文言とロールで探す</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">getByRole("button", { name: "回答する" })。CSS クラスに頼らない。data-testid は特定しにくい所だけ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">API でも確かめる</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">画面の表示だけでは保存されたか分からない。expect.poll で反映を待つ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">待ってから数える</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">.all() は待たない。先に expect で表示を待つ。時刻の表示は確かめない</p></div></div>
+<div style="display:flex;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">確認ダイアログ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">window.confirm は自動でキャンセルされる。必要なら page.once("dialog", d =&gt; d.accept())</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">API テストは apitest/</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">startServer({ preset, setup, serveArgs })。形は assertOperation で OpenAPI と照合</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 6</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

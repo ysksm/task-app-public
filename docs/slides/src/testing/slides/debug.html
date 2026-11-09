@@ -1,0 +1,9 @@
+<section id="debug" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 失敗したとき</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">スクリーンショットとトレースで、そのときの画面を見る</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:40%;color:#F5F4EF;padding:0.4em 0.6em">やりたいこと</th><th style="width:60%;color:#F5F4EF;padding:0.4em 0.6em">コマンド（e2e/ の中で）</th></tr><tr><td>失敗の一覧と画面・トレース</td><td>pnpm exec playwright show-report</td></tr><tr style="background:#ECEBE4"><td>1 件のトレース（操作ごとの画面・DOM・通信）</td><td>pnpm exec playwright show-trace test-results/…/trace.zip</td></tr><tr><td>ブラウザを表示しながら</td><td>pnpm exec playwright test --headed</td></tr><tr style="background:#ECEBE4"><td>1 ステップずつ止めながら</td><td>pnpm exec playwright test --debug -g "名前"</td></tr><tr><td>不安定なテストを探す</td><td>pnpm exec playwright test --repeat-each=5</td></tr></table>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">失敗したテストの記録は e2e/test-results/ に残る（git には入らない）</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 6</p>
+</section>

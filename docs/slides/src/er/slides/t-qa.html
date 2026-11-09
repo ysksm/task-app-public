@@ -1,0 +1,39 @@
+<section id="t-qa" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B85A1E;letter-spacing:2px">07 · テーブル ⑥ qa_details / qa_items</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">QA は issues の拡張 + 複数の質問</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<table style="font-size:19px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#B85A1E"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.35em 0.6em">qa_details（1:1）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif">説明</th></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>PK, → issues（type = qa）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">target_issue_id</span></td><td>質問対象</td></tr>
+<tr><td><span style="color:#5B58D6">context</span></td><td>背景</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">provisional_decision</span></td><td>暫定判断</td></tr>
+<tr><td><span style="color:#5B58D6">is_blocking</span></td><td>ブロッキングか</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">answered_at / closed_at</span></td><td></td></tr>
+</table>
+<table style="font-size:19px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#B85A1E"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.35em 0.6em">qa_items（1:N 質問）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif">説明</th></tr>
+<tr><td><span style="color:#5B58D6">answer_type</span></td><td>5 形式（yes_no, ok_ng, single / multi_choice, text）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">options</span></td><td>選択肢 JSON（推奨つき）</td></tr>
+<tr><td><span style="color:#5B58D6">allow_other / required</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">selected_option_ids</span></td><td>選んだ選択肢（複数可）</td></tr>
+<tr><td><span style="color:#5B58D6">answer_text / answer_note</span></td><td>テキスト回答・補足</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">answered_by / answered_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#8F4415">回答の流れ</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">質問ごとに回答を保存。必須の質問がすべて埋まると「回答済」へ。クローズまでは修正できる</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#8F4415">なぜ issues の種別にするか</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">担当・ステータス・コメント・ORCA での表示など、チケットの機能をそのまま使えるため</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">8 / 15</p>
+</section>

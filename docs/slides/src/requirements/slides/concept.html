@@ -1,0 +1,29 @@
+<section id="concept" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · コンセプト</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">内部は Linear ライク、外部は Jira 互換と MCP</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #5B58D6;border-radius:12px;padding:40px">
+<x-icon name="Home" style="color:#5B58D6;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">Linear ライク UI</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">シンプルなステータスと階層データ。キーボード中心で速く操作できる</p>
+<p style="font-size:24px;color:#5B58D6;font-weight:500">人間: PM・QA・受入検査</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #2F7D8C;border-radius:12px;padding:40px">
+<x-icon name="Link" style="color:#2F7D8C;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">Jira 互換 API (v3)</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">REST API v3 互換。ORCA の Jira 連携（Cloud モード）からそのまま接続できる</p>
+<p style="font-size:24px;color:#2F7D8C;font-weight:500">ORCA: タスク取得・更新</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #B85A1E;border-radius:12px;padding:40px">
+<x-icon name="Tool" style="color:#B85A1E;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">MCP サーバー</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">エージェントがチェックポイント記録や QA 起票をツールとして呼べる</p>
+<p style="font-size:24px;color:#B85A1E;font-weight:500">エージェント: 記録・質問</p>
+</div>
+</div>
+<p style="font-size:28px;color:#4A5160">手元の PC で動く単一バイナリ（ほかの端末からも接続可）。UI・API・MCP は同じサービス層を通る</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 18</p>
+<aside>ORCA は stablyai/orca。Jira の Cloud モードでは /rest/api/3 を Basic（メール + API トークン）で呼び、説明・コメントは ADF でやり取りすることをソースで確認済み。接続先 URL は atlassian.net に限定されない。</aside>
+</section>

@@ -1,0 +1,29 @@
+<section id="p2" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">05 · P2 Jira 互換 ✅確認2</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">ORCA から実際に接続する</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:stretch;">
+<div style="flex:3;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:12%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">#</th><th style="width:66%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">作業</th><th style="width:22%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">要求</th></tr>
+<tr><td><span style="color:#5B58D6">2-1</span></td><td>API トークン発行（CLI + 設定画面）、Basic（email + token）/ Bearer</td><td>JIRA-03</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">2-2</span></td><td>issue / project / user / status 等の JSON 変換</td><td>4.10.3</td></tr>
+<tr><td><span style="color:#5B58D6">2-3</span></td><td>JQL lexer / parser → domain.Filter</td><td>JIRA-04</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">2-4</span></td><td>myself, serverInfo, project, search, issue, assignee, transitions, comment</td><td>JIRA-01, 02</td></tr>
+<tr><td><span style="color:#5B58D6">2-5</span></td><td>createmeta, priority, user/search, agile board</td><td>JIRA-02</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">2-6</span></td><td>Jira 形式のエラー、ページング</td><td>JIRA-05</td></tr>
+<tr><td><span style="color:#5B58D6">2-7〜8</span></td><td>ゴールデンテスト、jira-smoke.sh、ORCA 実機テスト</td><td>NFR-06</td></tr>
+</table>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px;">
+<div style="display:flex;flex-direction:column;gap:10px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #2F7D8C;border-radius:12px;padding:24px 28px"><h3 style="font-size:28px;font-weight:700;color:#1B1F2A">✅ 確認できること</h3><ul style="font-size:22px;line-height:1.55;color:#4A5160">
+<li>ORCA（Cloud モード）に URL・メール・API トークンを入れて接続できる</li>
+<li>一覧・詳細・作成・遷移・コメントが UI に即時反映</li>
+<li>済: API テスト 32 件、ORCA のクライアントコードでの接続確認、jira-smoke.sh</li>
+</ul></div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#FBEFE6;border-radius:12px;padding:24px 28px"><h3 style="font-size:28px;font-weight:700;color:#8F4415">確認したいこと</h3><p style="font-size:22px;line-height:1.55;color:#4A5160">ORCA 上での種別（Feature / Question）や階層の見え方、ORCA から使いたい操作の過不足</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 14</p>
+</section>

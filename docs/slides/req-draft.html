@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>下書きで試して、まとめて取り込む</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#5B58D6"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">REQUIREMENTS · STORY MAP DRAFTS</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:88px;font-weight:900;line-height:1.2;color:#F5F4EF">下書きで試して<br>まとめて取り込む</h1>
+<p style="font-size:38px;color:#B9BED0;line-height:1.5">ストーリーマップは、試行錯誤してから決まる。<br>下書きのプロジェクトで自由に組み替え、予定を見てから一度に入れる</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">ブランチ feat/req-drafts · 本体 task-app</p>
+<p style="font-size:28px;color:#B9BED0">2026-11-03 · 確認待ち</p>
+</div>
+</section>
+<section id="why" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · なぜ</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">ブレストの途中を、本番のマップに混ぜない</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #B85A1E"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">いまの困りごと</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">マップを組み替えながら考えると、<b style="color:#1B1F2A">途中の形がそのまま本番に出る</b>。AI も途中を読む。やめた案を消し忘れる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #5B58D6"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">やりたいこと</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">一時的な<b style="color:#1B1F2A">試しの場所</b>で決めて、決まったら<b style="color:#1B1F2A">一気に入れる</b></div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #2F7D8C"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">選んだ案</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">4 案（下書きのプロジェクト / マップの中の下書き / テキストで読み込む / 「仮」の印）から <b style="color:#1B1F2A">下書きのプロジェクト</b>。今の画面と道具がそのまま使える</div></div>
+</div>
+<table style="font-size:22px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:26%;color:#F5F4EF;padding:0.45em 0.7em">案</th><th style="width:40%;color:#F5F4EF;padding:0.45em 0.7em">よい点</th><th style="width:34%;color:#F5F4EF;padding:0.45em 0.7em">選ばなかった理由</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">1 下書きのプロジェクト ✓</b></td><td style="padding:0.45em 0.7em">新しいのは取り込みだけ。何度でも壊して作り直せる</td><td style="padding:0.45em 0.7em">—</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">2 マップの中の下書き</b></td><td style="padding:0.45em 0.7em">いちばん自然（本番と並べて見られる）</td><td style="padding:0.45em 0.7em">すべての表に下書きの状態が要り、重い</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">3 テキストで読み込む</b></td><td style="padding:0.45em 0.7em">AI との会話・git に向く</td><td style="padding:0.45em 0.7em">カードを動かしながら考えられない</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">4 「仮」の印</b></td><td style="padding:0.45em 0.7em">いちばん小さい</td><td style="padding:0.45em 0.7em">本番と混ざる。消し忘れる</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">2 / 11</p>
+</section>
+<section id="flow" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 流れ</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">作る → 試す → 予定を見る → 取り込む</h2>
+</div>
+<div style="display:flex;gap:22px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:24px 26px;border-top:8px solid #5B58D6"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#5B58D6">1 作る</div><h3 style="font-size:30px;font-weight:700">下書き</h3><div style="font-size:22px;line-height:1.55;color:#4A5160">マップのヘッダー「下書き」から。<b style="color:#1B1F2A">いまのマップの複製</b>（既定）か空。キーは TAPPD1、番号はそのまま（TAPP-ST3 → TAPPD1-ST3）</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:24px 26px;border-top:8px solid #2F7D8C"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#2F7D8C">2 試す</div><h3 style="font-size:30px;font-weight:700">自由に</h3><div style="font-size:22px;line-height:1.55;color:#4A5160">足す・消す・名前を変える・置き直す。<b style="color:#1B1F2A">元のプロジェクトは変わらない</b>。AI も MCP で下書きを直せる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:24px 26px;border-top:8px solid #9A6B00"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#9A6B00">3 見る</div><h3 style="font-size:30px;font-weight:700">取り込みの予定</h3><div style="font-size:22px;line-height:1.55;color:#4A5160"><b style="color:#1B1F2A">増える・変わる・消える・戻す</b>。両方で変わったものは衝突。元にしかないものは残る</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:24px 26px;border-top:8px solid #2E7D4F"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#2E7D4F">4 入れる</div><h3 style="font-size:30px;font-weight:700">一度に</h3><div style="font-size:22px;line-height:1.55;color:#4A5160"><b style="color:#1B1F2A">人だけ</b>が、1 つのトランザクションで。下書きはそのまま使え、次は違いだけが入る</div></div>
+</div>
+<div style="font-size:24px;line-height:1.6;color:#4A5160">下書きは<b style="color:#1B1F2A">プロジェクト一覧・サイドバーには出ない</b>。元のマップの「下書き」メニューから開く。いらなくなったら「下書きを捨てる」（アーカイブ）。</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">3 / 11</p>
+</section>
+<section id="menu" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 下書きを作る</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">元のマップのヘッダーに「下書き」</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-draft/d1-menu.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">いまのマップから</div><div style="font-size:21px;line-height:1.5;color:#4A5160">複製して始める（既定）。イシューとのつながりは複製しない</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">空から</div><div style="font-size:21px;line-height:1.5;color:#4A5160">何もないところから。同じ名前のリリースは元のものとみなす</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">一覧</div><div style="font-size:21px;line-height:1.5;color:#4A5160">作った下書きがここに並ぶ（新しい順）</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">4 / 11</p>
+</section>
+<section id="draft" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · 下書きで試す</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">帯が出ている間は、元は変わらない</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-draft/d2-draft.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">帯</div><div style="font-size:21px;line-height:1.5;color:#4A5160">「APP に取り込む前の試し場所」。下書きを捨てる・APP に取り込む</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">いつもの画面</div><div style="font-size:21px;line-height:1.5;color:#4A5160">書き方の既定は まず書く。ひとこと入力・未整理・リリースの見出しもそのまま</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">この例</div><div style="font-size:21px;line-height:1.5;color:#4A5160">ストーリーを 2 つ足し、R2 を「つぎ」に、1 つ消し、タイトルを直した</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">5 / 11</p>
+</section>
+<section id="plan" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · 取り込みの予定</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">何が起きるかを、取り込む前に全部見る</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-draft/d3-plan.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">増える</div><div style="font-size:21px;line-height:1.5;color:#4A5160">キーは取り込むときに付く（予定では「新規（APPD1-ST8）」）</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">変わる</div><div style="font-size:21px;line-height:1.5;color:#4A5160">項目ごとに 前 → 後。R2 → つぎ は、ストーリーがみんな付いていく</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">消える</div><div style="font-size:21px;line-height:1.5;color:#4A5160">アーカイブする（キーは使い回さない）</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">6 / 11</p>
+</section>
+<section id="conflict" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 衝突</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">元でも変わっていたら、上書きを明示する</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-draft/d5-conflict.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">3 者比較</div><div style="font-size:21px;line-height:1.5;color:#4A5160">最後にそろったときの中身（ハッシュ）と、いまの下書き・いまの元を比べる。触っていない要素の基準は取り込みで動かさない</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">下書きだけ変えた</div><div style="font-size:21px;line-height:1.5;color:#4A5160">変わる。元だけ変えた → 何もしない（元のまま）</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">両方変えた</div><div style="font-size:21px;line-height:1.5;color:#4A5160">印を付け、「上書きして取り込む」に印を付けたときだけ取り込める（API は 409、force）</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">7 / 11</p>
+</section>
+<section id="done" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">07 · 取り込んだあと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">下書きは続けて使える</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px"><img src="img/req-draft/d4-done.png" alt="" style="width:1180px;border:1px solid #DDDBD3;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)"></figure>
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">新しいキー</div><div style="font-size:21px;line-height:1.5;color:#4A5160">APP-ST8・APP-ST9 のように、元の続きの番号が付く</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">もう一度</div><div style="font-size:21px;line-height:1.5;color:#4A5160">取り込むと、その後の違いだけが入る</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">履歴</div><div style="font-size:21px;line-height:1.5;color:#4A5160">元の変更履歴に from_draft: APPD1 付きで残る</div></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">8 / 11</p>
+</section>
+<section id="api" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">08 · データと API</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">プロジェクト 1 列と、対応表 1 つ</h2>
+</div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:30%;color:#F5F4EF;padding:0.45em 0.7em">どこ</th><th style="width:70%;color:#F5F4EF;padding:0.45em 0.7em">変更</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">projects.draft_of</b></td><td style="padding:0.45em 0.7em">取り込み先のプロジェクト（マイグレーション 013）。GET /projects には下書きを出さない</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">req_draft_links</b></td><td style="padding:0.45em 0.7em">下書きの要素 ↔ 取り込み先の要素。最後にそろったときの中身のハッシュを両側に持つ</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">GET/POST /projects/{key}/drafts</b></td><td style="padding:0.45em 0.7em">下書きの一覧と作成（from: copy | empty、key、name）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">GET /projects/{draft}/import-plan</b></td><td style="padding:0.45em 0.7em">items（create / update / archive / restore、changes、conflict）・target_only・counts・warnings</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">POST /projects/{draft}/import</b></td><td style="padding:0.45em 0.7em">人だけ（エージェントは 403）。衝突があれば 409、force: true で上書き</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">MCP</b></td><td style="padding:0.45em 0.7em">create_draft・get_import_plan。説明に「大きく考え直すときは下書きで」</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">テスト</b></td><td style="padding:0.45em 0.7em">API 229 件（+13 drafts.test.ts）、画面 48 件（+2 storymap-drafts.spec.ts）すべて成功</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">9 / 11</p>
+</section>
+<section id="mcp" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · MCP でマップを作る</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">ペルソナ・活動・手順も AI が入れられる</h2>
+</div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:34%;color:#F5F4EF;padding:0.45em 0.7em">道具</th><th style="width:66%;color:#F5F4EF;padding:0.45em 0.7em">すること</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">create_persona / update_persona</b></td><td style="padding:0.45em 0.7em">ペルソナを足す・直す（名前・human / agent・説明・並び）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">create_activity</b></td><td style="padding:0.45em 0.7em">活動を足す。手順をまとめて渡せる（steps: [{name}, …]）。persona_key で誰の活動か</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">update_activity</b></td><td style="padding:0.45em 0.7em">名前・説明・並び。persona_key: "" でペルソナを外す</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">create_step / update_step</b></td><td style="padding:0.45em 0.7em">手順を活動の最後に足す・名前と並びを直す</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">create_story</b></td><td style="padding:0.45em 0.7em">persona_key・i_want・so_that を足した（手順の下に、誰の何のための話かまで一度に）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">消す道具は足さない</b></td><td style="padding:0.45em 0.7em">消すのは画面か、下書きで消してから取り込む（元ではアーカイブ）</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">テスト</b></td><td style="padding:0.45em 0.7em">API 232 件（+3 mcp-storymap.test.ts）すべて成功</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">10 / 11</p>
+</section>
+<section id="next" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · 制限と確認したいこと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">全部まとめて入れる形から始めた</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1"><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span><div><div style="font-size:25px;font-weight:700">選んで取り込めない</div><div style="font-size:21px;line-height:1.5;color:#4A5160">予定に出たものは全部入る（入れないものは下書きで戻す）</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span><div><div style="font-size:25px;font-weight:700">取り消しはない</div><div style="font-size:21px;line-height:1.5;color:#4A5160">変更履歴には残る</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span><div><div style="font-size:25px;font-weight:700">下書き同士は比べない</div><div style="font-size:21px;line-height:1.5;color:#4A5160">下書きは何個でも作れる</div></div></div><div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #DDDBD3"><span style="flex:none;width:34px;height:34px;border-radius:50%;background:#5B58D6;color:#F5F4EF;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center">4</span><div><div style="font-size:25px;font-weight:700">途中で見つけて直した</div><div style="font-size:21px;line-height:1.5;color:#4A5160">リリース名の入れ替え（R1 ⇔ R2）、あいだの取り込みで衝突が消える誤り、ヘッダーのメニューが切れる表示</div></div></div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">1. 決めたこと</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">人だけが取り込む・消したものはアーカイブ・衝突は上書きを明示、でよいか</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">2. 選んで取り込む</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">項目ごとに選ぶ形が要るか</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#9AA0B0">3. 本番へ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">push・PR・デプロイは指示をもらってから</div></div>
+</div></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">11 / 11</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

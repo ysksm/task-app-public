@@ -1,0 +1,41 @@
+<section id="t-issues" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · テーブル ③ issues</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">階層・種別・ステータスを1テーブルで持つ</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issues（1/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>ULID（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td>Jira 用の数値 ID</td></tr>
+<tr><td><span style="color:#5B58D6">project_id</span></td><td>→ projects</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">number</span></td><td>プロジェクト内の連番</td></tr>
+<tr><td><span style="color:#5B58D6">key</span></td><td>APP-12（一意）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">type</span></td><td>epic | story | feature | task | qa</td></tr>
+<tr><td><span style="color:#5B58D6">parent_id</span></td><td>自己参照。NULL = ルート</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">title</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">description</span></td><td>Markdown</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">state_id</span></td><td>→ workflow_states</td></tr>
+<tr><td><span style="color:#5B58D6">priority</span></td><td>0 なし … 4 低</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issues（2/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">assignee_id</span></td><td>→ users（人間 / エージェント）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">reporter_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">estimate</span></td><td>見積り</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">due_date</span></td><td>期日</td></tr>
+<tr><td><span style="color:#5B58D6">sort_order</span></td><td>兄弟の並び（fractional index）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">started_at</span></td><td>started へ移った日時</td></tr>
+<tr><td><span style="color:#5B58D6">completed_at</span></td><td>completed の日時</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">canceled_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">deleted_at</span></td><td>論理削除</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">updated_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 15</p>
+</section>

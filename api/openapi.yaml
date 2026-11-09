@@ -1,0 +1,2046 @@
+openapi: 3.1.0
+info:
+  title: taskapp internal API
+  version: 0.1.0
+  description: |
+    Internal API used by the web UI and by agents/tools (/api/v1).
+    This file is the contract: the web UI and the black-box tests (apitest/) generate
+    their TypeScript types from it, and any backend implementation must satisfy it.
+
+    Authentication: `Authorization: Bearer <token>` (API tokens), or the
+    `taskapp_session` cookie issued by `POST /auth/local` (a browser on the
+    machine running the server) or `POST /auth/login` (a person's password,
+    from any device). Sessions are kept in the database (a restart keeps them):
+    a day after the last use, or 30 days with `remember` (then the cookie
+    persists too).
+
+    Errors always use the `ErrorResponse` envelope.
+servers:
+  - url: http://127.0.0.1:7700/api/v1
+security:
+  - bearer: []
+  - session: []
+
+paths:
+  /health:
+    get:
+      operationId: health
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { type: object, properties: { status: { type: string, const: ok } }, required: [status] }
+
+  /auth/local:
+    post:
+      operationId: localLogin
+      summary: Issue an owner session cookie without a password
+      description: |
+        Only for a browser on the machine running the server: the peer address
+        and the Host header must both be loopback, and the server must not run
+        with --require-login. Otherwise 403.
+      security: []
+      responses:
+        "200":
+          description: Owner user; sets the taskapp_session cookie
+          content: { application/json: { schema: { $ref: "#/components/schemas/User" } } }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /auth/options:
+    get:
+      operationId: authOptions
+      summary: Ways of logging in available to this request (for the login page)
+      security: []
+      responses:
+        "200":
+          description: Options
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [local_login, password_login]
+                properties:
+                  local_login: { type: boolean, description: POST /auth/local would succeed for this request }
+                  password_login: { type: boolean, description: at least one person has a password }
+
+  /auth/login:
+    post:
+      operationId: login
+      summary: Log in with a person's username and password
+      description: |
+        Agents have no password and cannot log in. After 5 failures in a row
+        from the same address, further attempts get 429 for a minute.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                remember: { type: boolean, default: false, description: "Keep me logged in: the session lasts 30 days after the last use and the cookie gets Max-Age (otherwise a day, and the cookie ends with the browser)" }
+      responses:
+        "200":
+          description: The user; sets the taskapp_session cookie
+          content: { application/json: { schema: { $ref: "#/components/schemas/User" } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: End the session of the taskapp_session cookie
+      security: []
+      responses:
+        "204": { description: Logged out; the cookie is cleared }
+
+  /me:
+    get:
+      operationId: getMe
+      responses:
+        "200": { description: Current user, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /server:
+    get:
+      operationId: serverInfo
+      summary: Version, binary path and data directory of the running server
+      responses:
+        "200":
+          description: Server info
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, binary, data_dir]
+                properties:
+                  version: { type: string }
+                  binary: { type: string }
+                  data_dir: { type: string }
+                  remote_url: { type: string, description: "URL for other devices: serve --public-url if given, otherwise present only when listening on a non-loopback address" }
+
+  /users:
+    get:
+      operationId: listUsers
+      responses:
+        "200":
+          description: Active users
+          content:
+            application/json:
+              schema: { type: object, properties: { users: { type: array, items: { $ref: "#/components/schemas/User" } } }, required: [users] }
+    post:
+      operationId: addUser
+      summary: Register a person or an agent (owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [kind, username]
+              properties:
+                kind: { $ref: "#/components/schemas/UserKind" }
+                username: { type: string }
+                display_name: { type: string }
+                email: { type: string }
+                agent_model: { type: string }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /users/{username}/password:
+    put:
+      operationId: setPassword
+      summary: Set a person's password for logging in from other devices
+      description: |
+        Users may set their own password (`me` works as the username); the
+        current password is required when they already have one. The owner may
+        set or, with an empty password, remove anyone's. Minimum 8 characters.
+        Other sessions of that user end.
+      parameters:
+        - { name: username, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [password]
+              properties:
+                password: { type: string }
+                current_password: { type: string }
+      responses:
+        "200": { description: Updated user, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects:
+    get:
+      operationId: listProjects
+      parameters:
+        - { name: include_archived, in: query, schema: { type: boolean } }
+      responses:
+        "200":
+          description: Projects ordered by key
+          content:
+            application/json:
+              schema: { type: object, properties: { projects: { type: array, items: { $ref: "#/components/schemas/Project" } } }, required: [projects] }
+    post:
+      operationId: createProject
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CreateProjectInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Project" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: getProject
+      responses:
+        "200": { description: Project, content: { application/json: { schema: { $ref: "#/components/schemas/Project" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateProject
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/UpdateProjectInput" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Project" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/states:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listStates
+      responses:
+        "200":
+          description: Workflow states (applies_to all first, then qa; by position)
+          content:
+            application/json:
+              schema: { type: object, properties: { states: { type: array, items: { $ref: "#/components/schemas/State" } } }, required: [states] }
+    post:
+      operationId: createState
+      summary: Add a workflow state for regular issues (the QA workflow is fixed)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StateInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/State" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/states/{id}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: id, in: path, required: true, schema: { type: integer } }
+    patch:
+      operationId: updateState
+      summary: Rename, recolor, reorder (within its category) or make it the default / acceptance state
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StatePatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/State" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteState
+      summary: Delete an unused state (not the default, the acceptance state, or the last started/completed state)
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/labels:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listLabels
+      responses:
+        "200":
+          description: Labels by name
+          content:
+            application/json:
+              schema: { type: object, properties: { labels: { type: array, items: { $ref: "#/components/schemas/Label" } } }, required: [labels] }
+    post:
+      operationId: createLabel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { name: { type: string }, color: { type: string } }, required: [name], additionalProperties: false }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Label" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/labels/{id}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      operationId: updateLabel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { name: { type: string }, color: { type: string } }, additionalProperties: false }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Label" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteLabel
+      summary: Delete a label and remove it from every issue
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /issues:
+    get:
+      operationId: listIssues
+      parameters:
+        - name: filter
+          in: query
+          description: JSON-encoded Filter
+          schema: { type: string }
+        - name: project
+          in: query
+          description: Project key shortcut, ANDed with the filter
+          schema: { type: string }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [updated, created, priority, manual, key, due_date, updated_asc, created_asc, key_desc], default: updated }
+        - { name: limit, in: query, schema: { type: integer, minimum: 0, maximum: 5000, default: 500 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0 } }
+        - name: include_ancestors
+          in: query
+          description: Also return ancestors of matches that did not match (for tree views)
+          schema: { type: boolean }
+      responses:
+        "200": { description: Page of issues, content: { application/json: { schema: { $ref: "#/components/schemas/IssueList" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createIssue
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CreateIssueInput" } } }
+      responses:
+        "201": { description: Created (detail form), content: { application/json: { schema: { $ref: "#/components/schemas/Issue" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /issues/{key}:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: getIssue
+      responses:
+        "200": { description: Issue with ancestors and children, content: { application/json: { schema: { $ref: "#/components/schemas/Issue" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateIssue
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/UpdateIssueInput" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Issue" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteIssue
+      summary: Soft-delete the issue and its descendants
+      responses:
+        "200":
+          description: Number of deleted issues
+          content: { application/json: { schema: { type: object, properties: { deleted: { type: integer } }, required: [deleted] } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /issues/{key}/comments:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: listComments
+      responses:
+        "200":
+          description: Comments, oldest first
+          content:
+            application/json:
+              schema: { type: object, properties: { comments: { type: array, items: { $ref: "#/components/schemas/Comment" } } }, required: [comments] }
+    post:
+      operationId: addComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, properties: { body: { type: string } }, required: [body], additionalProperties: false }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Comment" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /issues/{key}/activity:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: listActivity
+      responses:
+        "200":
+          description: Change history, oldest first
+          content:
+            application/json:
+              schema: { type: object, properties: { activity: { type: array, items: { $ref: "#/components/schemas/Activity" } } }, required: [activity] }
+
+  /issues/{key}/checkpoints:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: listCheckpoints
+      responses:
+        "200":
+          description: Checkpoints, oldest first
+          content:
+            application/json:
+              schema: { type: object, properties: { checkpoints: { type: array, items: { $ref: "#/components/schemas/Checkpoint" } } }, required: [checkpoints] }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: recordCheckpoint
+      summary: Record an agent checkpoint (progress plus the reasoning behind decisions)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CheckpointInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Checkpoint" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /qa:
+    get:
+      operationId: listQA
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [open, answered, closed] } }
+        - { name: asked_by, in: query, description: Username or "me", schema: { type: string } }
+        - { name: assignee, in: query, description: Username or "me", schema: { type: string } }
+        - { name: target, in: query, description: Issue key the questions are about, schema: { type: string } }
+        - { name: project, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        "200":
+          description: QA tickets, newest first
+          content:
+            application/json:
+              schema: { type: object, properties: { questions: { type: array, items: { $ref: "#/components/schemas/QA" } } }, required: [questions] }
+        "400": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createQA
+      summary: Ask one or more questions in a new QA ticket
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CreateQAInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/QA" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /qa/{key}:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: getQA
+      responses:
+        "200": { description: QA ticket, content: { application/json: { schema: { $ref: "#/components/schemas/QA" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /qa/{key}/answers:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    post:
+      operationId: answerQA
+      summary: Answer some or all questions; re-answering overwrites. The ticket becomes answered when all required questions have answers.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AnswerInput" } } }
+      responses:
+        "200": { description: Updated QA, content: { application/json: { schema: { $ref: "#/components/schemas/QA" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /qa/{key}/close:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    post:
+      operationId: closeQA
+      responses:
+        "200": { description: Closed QA, content: { application/json: { schema: { $ref: "#/components/schemas/QA" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /agents/activity:
+    get:
+      operationId: agentActivity
+      parameters:
+        - { name: agent, in: query, description: Agent username, schema: { type: string } }
+        - { name: project, in: query, schema: { type: string } }
+        - { name: low_confidence, in: query, description: Only low-confidence checkpoints, schema: { type: boolean } }
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        "200":
+          description: Newest first
+          content:
+            application/json:
+              schema: { type: object, properties: { entries: { type: array, items: { $ref: "#/components/schemas/FeedEntry" } } }, required: [entries] }
+
+  /tokens:
+    get:
+      operationId: listTokens
+      summary: Active tokens (the owner sees all, others their own)
+      responses:
+        "200":
+          description: Tokens
+          content:
+            application/json:
+              schema: { type: object, properties: { tokens: { type: array, items: { $ref: "#/components/schemas/Token" } } }, required: [tokens] }
+    post:
+      operationId: issueToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name]
+              properties:
+                user: { type: string, description: Username or "me" (default). Only the owner may issue for others. }
+                name: { type: string }
+      responses:
+        "201":
+          description: The raw token (also available later from /tokens/{id}/reveal)
+          content:
+            application/json:
+              schema: { type: object, properties: { token: { type: string }, info: { $ref: "#/components/schemas/Token" } }, required: [token, info] }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /tokens/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+    delete:
+      operationId: revokeToken
+      responses:
+        "204": { description: Revoked }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /tokens/{id}/reveal:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+    post:
+      operationId: revealToken
+      summary: >-
+        The raw secret of an active token (the owner: any token, others: their own).
+        The server keeps an AES-GCM copy keyed by token.key in the data directory;
+        authentication still uses only the hash.
+      responses:
+        "200":
+          description: The raw token
+          content:
+            application/json:
+              schema: { type: object, properties: { token: { type: string } }, required: [token] }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }   # code not_available: issued before tokens were kept, or token.key changed
+
+  /issues/{key}/acceptance:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    get:
+      operationId: getAcceptance
+      summary: Acceptance criteria, review history (oldest first) and readiness warnings
+      responses:
+        "200": { description: Acceptance, content: { application/json: { schema: { $ref: "#/components/schemas/Acceptance" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /issues/{key}/acceptance/criteria:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    put:
+      operationId: setAcceptanceCriteria
+      summary: Replace the checklist (stories and features). Items with an id are kept; removed ones are hidden, not deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [criteria]
+              additionalProperties: false
+              properties:
+                criteria:
+                  type: array
+                  maxItems: 50
+                  items:
+                    type: object
+                    required: [description]
+                    additionalProperties: false
+                    properties:
+                      id: { type: [string, "null"] }
+                      description: { type: string }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Acceptance" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /issues/{key}/acceptance/reviews:
+    parameters: [{ $ref: "#/components/parameters/IssueKey" }]
+    post:
+      operationId: reviewAcceptance
+      summary: >
+        Judge an issue in the acceptance state (humans only). accepted moves it to the first completed state,
+        rejected to the first started state. Accepting with unfinished children or unanswered QA needs force.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ReviewInput" } } }
+      responses:
+        "201":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [review, issue, acceptance]
+                properties:
+                  review: { $ref: "#/components/schemas/AcceptanceReview" }
+                  issue: { $ref: "#/components/schemas/Issue" }
+                  acceptance: { $ref: "#/components/schemas/Acceptance" }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /acceptance:
+    get:
+      operationId: acceptanceQueue
+      summary: Issues waiting for acceptance, oldest update first
+      parameters:
+        - { name: project, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: Queue
+          content:
+            application/json:
+              schema: { type: object, required: [items], properties: { items: { type: array, items: { $ref: "#/components/schemas/AcceptanceQueueItem" } } } }
+
+  /projects/{key}/storymap:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: getStoryMap
+      summary: >-
+        The project's requirements layer (docs/08-devcycle.md): personas, jobs, activities with
+        their steps, stories (placement, status, linked issues), release names and missing links.
+      responses:
+        "200": { description: Story map, content: { application/json: { schema: { $ref: "#/components/schemas/StoryMap" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/drafts:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listDrafts
+      summary: Active drafts of the project (docs/08-devcycle.md §5.9), newest first
+      responses:
+        "200":
+          description: Drafts
+          content:
+            application/json:
+              schema: { type: object, properties: { drafts: { type: array, items: { $ref: "#/components/schemas/Project" } } }, required: [drafts] }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createDraft
+      summary: >-
+        Make a draft project of this one: a sandbox to brainstorm the story map in, imported
+        later in one go. By default a copy of the current map (same numbers: TAPP-ST3 → TAPPD1-ST3);
+        issue links are not copied.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/DraftInput" } } }
+      responses:
+        "201": { description: The draft project, content: { application/json: { schema: { $ref: "#/components/schemas/Project" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/import-plan:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: getImportPlan
+      summary: What importing this draft into its target would do (create / update / archive / restore), with conflicts
+      responses:
+        "200": { description: Plan, content: { application/json: { schema: { $ref: "#/components/schemas/ImportPlan" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/import:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    post:
+      operationId: applyImport
+      summary: >-
+        Import this draft into its target in one transaction (humans only). Elements archived in the
+        draft are archived in the target; target-only elements are kept. 409 when target elements
+        changed since the draft matched them, unless force.
+      requestBody:
+        required: false
+        content: { application/json: { schema: { $ref: "#/components/schemas/ImportInput" } } }
+      responses:
+        "200": { description: Done, content: { application/json: { schema: { $ref: "#/components/schemas/ImportResult" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/releases:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listReleases
+      summary: Release slices in map order, with their progress
+      responses:
+        "200":
+          description: Slices
+          content:
+            application/json:
+              schema: { type: object, required: [releases], properties: { releases: { type: array, items: { $ref: "#/components/schemas/Release" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createRelease
+      summary: Add a slice below the others (above 未定). A name written on a story creates one too.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ReleaseInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Release" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/releases/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-RL1 or RL1" }
+    patch:
+      operationId: updateRelease
+      summary: Change a slice. A new name is written onto its stories too.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ReleasePatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Release" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteRelease
+      summary: Delete an empty slice (409 while stories are in it). Keys are not reused.
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/personas:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listPersonas
+      responses:
+        "200": { description: Personas, content: { application/json: { schema: { type: object, required: [personas], properties: { personas: { type: array, items: { $ref: "#/components/schemas/Persona" } } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createPersona
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/PersonaInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Persona" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/personas/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    patch:
+      operationId: updatePersona
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/PersonaPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Persona" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archivePersona
+      summary: Archive (the key is not reused)
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/jobs:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listJobs
+      responses:
+        "200": { description: Jobs, content: { application/json: { schema: { type: object, required: [jobs], properties: { jobs: { type: array, items: { $ref: "#/components/schemas/Job" } } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createJob
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/JobInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/jobs/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    patch:
+      operationId: updateJob
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/JobPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Job" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archiveJob
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/activities:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    post:
+      operationId: createActivity
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ActivityInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/StoryActivity" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/activities/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    patch:
+      operationId: updateActivity
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ActivityPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/StoryActivity" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archiveActivity
+      summary: Archive the activity and its steps
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/activities/{rkey}/steps:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    post:
+      operationId: createStep
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StepInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Step" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/steps/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    patch:
+      operationId: updateStep
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StepPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Step" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archiveStep
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/stories:
+    parameters: [{ $ref: "#/components/parameters/ProjectKey" }]
+    get:
+      operationId: listStories
+      responses:
+        "200": { description: Stories in map order, content: { application/json: { schema: { type: object, required: [stories], properties: { stories: { type: array, items: { $ref: "#/components/schemas/Story" } } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createStory
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StoryInput" } } }
+      responses:
+        "201": { description: Created (with criteria and history), content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/stories/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    get:
+      operationId: getStory
+      responses:
+        "200": { description: Story with criteria and history, content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateStory
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/StoryPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archiveStory
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/stories/{rkey}/criteria:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    post:
+      operationId: createCriterion
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CriterionInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Criterion" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/criteria/{rkey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+    patch:
+      operationId: updateCriterion
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/CriterionPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Criterion" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: archiveCriterion
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /projects/{key}/stories/{rkey}/issues/{issueKey}:
+    parameters:
+      - { $ref: "#/components/parameters/ProjectKey" }
+      - { name: rkey, in: path, required: true, schema: { type: string }, description: "Key with or without the project prefix, e.g. TAPP-ST12 or ST12" }
+      - { name: issueKey, in: path, required: true, schema: { type: string, example: TAPP-12 } }
+    put:
+      operationId: linkStoryIssue
+      summary: Link an issue of the same project (idempotent)
+      responses:
+        "200": { description: Story, content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: unlinkStoryIssue
+      responses:
+        "200": { description: Story, content: { application/json: { schema: { $ref: "#/components/schemas/Story" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /views:
+    get:
+      operationId: listViews
+      summary: The caller's saved views in sidebar order
+      responses:
+        "200":
+          description: Views
+          content:
+            application/json:
+              schema: { type: object, required: [views], properties: { views: { type: array, items: { $ref: "#/components/schemas/SavedView" } } } }
+    post:
+      operationId: createView
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/SavedViewInput" } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/SavedView" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /views/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+    get:
+      operationId: getView
+      responses:
+        "200": { description: View, content: { application/json: { schema: { $ref: "#/components/schemas/SavedView" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      operationId: updateView
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/SavedViewPatch" } } }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/SavedView" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteView
+      responses:
+        "204": { description: Deleted }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /export:
+    get:
+      operationId: exportData
+      summary: The whole database as JSON (owner only). Load it with `taskapp import --in FILE` into an empty data directory.
+      responses:
+        "200":
+          description: Export (sent as a file download)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [format, schema_version, exported_at, tables]
+                properties:
+                  format: { type: integer, const: 1 }
+                  schema_version: { type: integer }
+                  exported_at: { type: string }
+                  tables: { type: object, additionalProperties: { type: array, items: { type: object, additionalProperties: true } } }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /capacity:
+    get:
+      operationId: capacity
+      summary: >-
+        How big the data is and how much room is left (owner only). The settings
+        page compares the counts with the scale taskapp was checked at (01 NFR-03).
+        Storage values are null when unknown (no data directory, or a platform
+        without disk statistics).
+      responses:
+        "200":
+          description: Counts, storage and memory
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [counts, storage, memory, measured_at]
+                properties:
+                  counts:
+                    type: object
+                    required: [issues, open_issues, projects, largest_project, largest_project_issues, users, activities]
+                    properties:
+                      issues: { type: integer, description: Issues not deleted }
+                      open_issues: { type: integer, description: Not in a completed or canceled state }
+                      projects: { type: integer }
+                      largest_project: { type: string, description: Key of the project with the most issues ("" if none) }
+                      largest_project_issues: { type: integer }
+                      users: { type: integer, description: Active people and agents }
+                      activities: { type: integer, description: History entries }
+                  storage:
+                    type: object
+                    required: [db_bytes, backups_bytes, data_dir_bytes, disk_total_bytes, disk_free_bytes]
+                    properties:
+                      db_bytes: { type: [integer, "null"], description: The SQLite file with its -wal and -shm }
+                      backups_bytes: { type: [integer, "null"] }
+                      data_dir_bytes: { type: [integer, "null"], description: Everything under the data directory }
+                      disk_total_bytes: { type: [integer, "null"] }
+                      disk_free_bytes: { type: [integer, "null"], description: Available to the server's user }
+                  memory:
+                    type: object
+                    required: [sys_bytes, heap_bytes]
+                    properties:
+                      sys_bytes: { type: integer, description: Memory obtained from the OS by the server process }
+                      heap_bytes: { type: integer }
+                  measured_at: { type: string, format: date-time }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /backups:
+    get:
+      operationId: backupStatus
+      summary: Automatic backup schedule and the backups in the backup directory, newest first (owner only)
+      responses:
+        "200":
+          description: Status
+          content: { application/json: { schema: { $ref: "#/components/schemas/BackupStatus" } } }
+        "403": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createBackup
+      summary: Take a backup now (owner only). The oldest beyond `keep` are removed.
+      responses:
+        "201":
+          description: The new backup
+          content: { application/json: { schema: { $ref: "#/components/schemas/BackupFile" } } }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /events:
+    get:
+      operationId: streamEvents
+      summary: Server-sent events; each `data:` line is an Event
+      responses:
+        "200":
+          description: text/event-stream
+          content: { text/event-stream: { schema: { $ref: "#/components/schemas/Event" } } }
+
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+    session: { type: apiKey, in: cookie, name: taskapp_session }
+
+  parameters:
+    ProjectKey: { name: key, in: path, required: true, schema: { type: string, example: APP } }
+    IssueKey: { name: key, in: path, required: true, schema: { type: string, example: APP-12 } }
+
+  responses:
+    Error:
+      description: Error
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorResponse" } } }
+
+  schemas:
+    BackupFile:
+      type: object
+      required: [name, size, created_at]
+      properties:
+        name: { type: string, description: "taskapp-YYYYMMDD-HHMMSS.db (a -N suffix when taken in the same second)" }
+        size: { type: integer }
+        created_at: { type: string, format: date-time }
+    BackupStatus:
+      type: object
+      required: [enabled, dir, interval_seconds, keep, last_backup_at, next_backup_at, last_error, files]
+      properties:
+        enabled: { type: boolean, description: "false when serve runs with --backup-interval 0" }
+        dir: { type: string }
+        interval_seconds: { type: integer }
+        keep: { type: integer, description: "0 keeps all" }
+        last_backup_at: { type: [string, "null"], format: date-time }
+        next_backup_at: { type: [string, "null"], format: date-time, description: "Taken then only if the database changed since the last backup" }
+        last_error: { type: string }
+        files: { type: array, items: { $ref: "#/components/schemas/BackupFile" } }
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [invalid_argument, not_found, conflict, hierarchy_violation, unauthorized, forbidden, rate_limited, not_available, internal] }
+            message: { type: string }
+
+    UserKind: { type: string, enum: [human, agent] }
+    User:
+      type: object
+      required: [id, kind, username, display_name, email, agent_model, avatar_color, is_owner, active, has_password]
+      properties:
+        id: { type: string }
+        kind: { $ref: "#/components/schemas/UserKind" }
+        username: { type: string }
+        display_name: { type: string }
+        email: { type: string }
+        agent_model: { type: string }
+        avatar_color: { type: string }
+        is_owner: { type: boolean }
+        active: { type: boolean }
+        has_password: { type: boolean, description: can log in with a password (the hash is never returned) }
+    UserRef:
+      type: object
+      required: [id, kind, username, display_name, avatar_color]
+      properties:
+        id: { type: string }
+        kind: { $ref: "#/components/schemas/UserKind" }
+        username: { type: string }
+        display_name: { type: string }
+        avatar_color: { type: string }
+
+    Project:
+      type: object
+      required: [id, key, name, description, owner, allow_skip_levels, tier, requirements_mode, archived_at, draft_of, created_at, updated_at]
+      properties:
+        id: { type: string }
+        key: { type: string }
+        name: { type: string }
+        description: { type: string }
+        owner: { $ref: "#/components/schemas/UserRef" }
+        allow_skip_levels: { type: boolean }
+        tier: { $ref: "#/components/schemas/ProjectTier" }
+        requirements_mode: { $ref: "#/components/schemas/RequirementsMode" }
+        archived_at: { type: [string, "null"] }
+        draft_of: { type: [string, "null"], description: "Key of the project this one is a draft of (docs/08-devcycle.md §5.9). Drafts are not listed in GET /projects." }
+        created_at: { type: string }
+        updated_at: { type: string }
+        stats:
+          type: object
+          required: [total, done, by_type]
+          properties:
+            total: { type: integer, description: Non-QA issues }
+            done: { type: integer }
+            by_type: { type: object, additionalProperties: { type: integer } }
+    CreateProjectInput:
+      type: object
+      required: [key, name]
+      additionalProperties: false
+      properties:
+        key: { type: string, description: "2-10 uppercase letters/digits, starting with a letter" }
+        name: { type: string }
+        description: { type: string }
+        allow_skip_levels: { type: boolean, default: true }
+        tier: { $ref: "#/components/schemas/ProjectTier" }
+        requirements_mode: { $ref: "#/components/schemas/RequirementsMode" }
+    UpdateProjectInput:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        description: { type: string }
+        allow_skip_levels: { type: boolean }
+        tier: { $ref: "#/components/schemas/ProjectTier" }
+        requirements_mode: { $ref: "#/components/schemas/RequirementsMode" }
+        archived: { type: boolean }
+
+    RequirementsMode:
+      type: string
+      enum: [structured, quick]
+      description: "How the project writes requirements. structured (整理して書く): stories under steps, Given/When/Then, gaps as warnings. quick (まず書く): one line into 未整理, one-line criteria. New projects default to quick; projects created before the column existed are structured."
+    ProjectTier:
+      type: string
+      enum: [focus, normal, side]
+      default: normal
+      description: "How much attention the project gets: focus (注力), normal (通常), side (その他: low priority, started casually)."
+
+    StateCategory: { type: string, enum: [backlog, unstarted, started, completed, canceled] }
+    State:
+      type: object
+      required: [id, name, category, applies_to, color, position, is_acceptance, is_default]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { $ref: "#/components/schemas/StateCategory" }
+        applies_to: { type: string, enum: [all, qa] }
+        color: { type: string }
+        position: { type: integer }
+        is_acceptance: { type: boolean }
+        is_default: { type: boolean }
+    StateRef:
+      type: object
+      required: [id, name, category, color, is_acceptance]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { $ref: "#/components/schemas/StateCategory" }
+        color: { type: string }
+        is_acceptance: { type: boolean }
+    Label:
+      type: object
+      required: [id, name, color]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        color: { type: string }
+
+    IssueType: { type: string, enum: [epic, story, feature, task, qa] }
+    Priority: { type: integer, minimum: 0, maximum: 4, description: "0 none, 1 urgent, 2 high, 3 medium, 4 low" }
+    IssueRef:
+      type: object
+      required: [key, type, title]
+      properties:
+        key: { type: string }
+        type: { $ref: "#/components/schemas/IssueType" }
+        title: { type: string }
+    Issue:
+      type: object
+      required: [id, key, number, project_key, type, title, description, state, priority, assignee, reporter, labels, estimate,
+        due_date, parent_key, sort_order, created_at, updated_at, started_at, completed_at, canceled_at, child_count, open_qa_count, blocking_qa_count, progress]
+      properties:
+        id: { type: string }
+        key: { type: string }
+        number: { type: integer }
+        project_key: { type: string }
+        type: { $ref: "#/components/schemas/IssueType" }
+        title: { type: string }
+        description: { type: string, description: Markdown }
+        state: { $ref: "#/components/schemas/StateRef" }
+        priority: { $ref: "#/components/schemas/Priority" }
+        assignee: { oneOf: [{ $ref: "#/components/schemas/UserRef" }, { type: "null" }] }
+        reporter: { $ref: "#/components/schemas/UserRef" }
+        labels: { type: array, items: { $ref: "#/components/schemas/Label" } }
+        estimate: { type: [number, "null"] }
+        due_date: { type: [string, "null"], description: YYYY-MM-DD }
+        parent_key: { type: [string, "null"] }
+        sort_order: { type: number }
+        created_at: { type: string }
+        updated_at: { type: string }
+        started_at: { type: [string, "null"] }
+        completed_at: { type: [string, "null"] }
+        canceled_at: { type: [string, "null"] }
+        child_count: { type: integer }
+        open_qa_count: { type: integer, description: Direct QA children not answered yet }
+        blocking_qa_count: { type: integer, description: Unanswered direct QA children marked blocking }
+        progress:
+          type: object
+          description: Non-QA descendants
+          required: [total, done]
+          properties:
+            total: { type: integer }
+            done: { type: integer }
+        ancestors: { type: array, description: Detail only. Root first., items: { $ref: "#/components/schemas/IssueRef" } }
+        children: { type: array, description: Detail only., items: { $ref: "#/components/schemas/Issue" } }
+        stories: { type: array, description: "Detail only. Stories (requirements layer) this issue helps satisfy.", items: { $ref: "#/components/schemas/StoryRef" } }
+    IssueList:
+      type: object
+      required: [issues, total]
+      properties:
+        issues: { type: array, items: { $ref: "#/components/schemas/Issue" } }
+        total: { type: integer }
+        ancestors: { type: array, items: { $ref: "#/components/schemas/Issue" } }
+    CreateIssueInput:
+      type: object
+      required: [type, title]
+      additionalProperties: false
+      properties:
+        project_key: { type: string, description: Required unless parent_key is given }
+        type: { $ref: "#/components/schemas/IssueType" }
+        title: { type: string }
+        description: { type: string }
+        parent_key: { type: [string, "null"] }
+        state_id: { type: [integer, "null"] }
+        priority: { $ref: "#/components/schemas/Priority" }
+        assignee: { type: [string, "null"], description: Username or "me" }
+        labels: { type: array, items: { type: string }, description: Label names (created if missing) }
+        estimate: { type: [number, "null"] }
+        due_date: { type: [string, "null"] }
+    UpdateIssueInput:
+      type: object
+      additionalProperties: false
+      description: Absent fields are unchanged; null clears nullable fields.
+      properties:
+        title: { type: string }
+        description: { type: string }
+        type: { $ref: "#/components/schemas/IssueType" }
+        state_id: { type: integer }
+        priority: { $ref: "#/components/schemas/Priority" }
+        assignee: { type: [string, "null"] }
+        labels: { type: [array, "null"], items: { type: string } }
+        estimate: { type: [number, "null"] }
+        due_date: { type: [string, "null"] }
+        parent_key: { type: [string, "null"] }
+        sort_order: { type: number }
+
+    Filter:
+      description: |
+        Exactly one of and/or/not/field. Fields: project, project_tier, key, type, state, state_name, state_category, assignee, assignee_kind,
+        reporter, priority, label, parent, ancestor, text, title, due_date, created, updated.
+        Ops: eq, neq, in, not_in, empty, not_empty, contains, lt, lte, gt, gte. User fields take a username, email or
+        user id; "me" means the caller.
+      type: object
+      properties:
+        and: { type: array, items: { $ref: "#/components/schemas/Filter" } }
+        or: { type: array, items: { $ref: "#/components/schemas/Filter" } }
+        not: { $ref: "#/components/schemas/Filter" }
+        field: { type: string }
+        op: { type: string }
+        value: {}
+
+    Comment:
+      type: object
+      required: [id, author, body, source, created_at, updated_at]
+      properties:
+        id: { type: string }
+        author: { $ref: "#/components/schemas/UserRef" }
+        body: { type: string }
+        source: { $ref: "#/components/schemas/Source" }
+        created_at: { type: string }
+        updated_at: { type: string }
+    Source: { type: string, enum: [ui, api, jira, mcp, system] }
+    Activity:
+      type: object
+      required: [id, actor, source, action, field, old_value, new_value, created_at]
+      properties:
+        id: { type: integer }
+        actor: { $ref: "#/components/schemas/UserRef" }
+        source: { $ref: "#/components/schemas/Source" }
+        action: { type: string, enum: [created, updated, commented, deleted, checkpoint, answered, accepted, rejected] }
+        field: { type: string }
+        old_value: { type: string }
+        new_value: { type: string }
+        created_at: { type: string }
+    Confidence: { type: string, enum: [high, medium, low] }
+    Checkpoint:
+      type: object
+      required: [id, issue_key, seq, author, summary, decision, rationale, alternatives, confidence, progress, next_steps, artifacts, source, created_at]
+      properties:
+        id: { type: string }
+        issue_key: { type: string }
+        seq: { type: integer }
+        author: { $ref: "#/components/schemas/UserRef" }
+        summary: { type: string, description: What was done }
+        decision: { type: string, description: What was decided }
+        rationale: { type: string, description: Why (判断基準) }
+        alternatives: { type: array, items: { type: string } }
+        confidence: { $ref: "#/components/schemas/Confidence" }
+        progress: { type: [integer, "null"], minimum: 0, maximum: 100 }
+        next_steps: { type: string }
+        artifacts: { type: object, description: "e.g. branch, commits, pr, files" }
+        source: { $ref: "#/components/schemas/Source" }
+        created_at: { type: string }
+    CheckpointInput:
+      type: object
+      additionalProperties: false
+      required: [summary, rationale]
+      properties:
+        summary: { type: string }
+        decision: { type: string }
+        rationale: { type: string }
+        alternatives: { type: array, items: { type: string } }
+        confidence: { $ref: "#/components/schemas/Confidence" }
+        progress: { type: [integer, "null"], minimum: 0, maximum: 100 }
+        next_steps: { type: string }
+        artifacts: { type: object }
+
+    AnswerType:
+      type: string
+      enum: [yes_no, ok_ng, single_choice, multi_choice, text]
+      description: "yes_no / ok_ng: fixed two options. single_choice: one of 2-6. multi_choice: one or more of 2-6. text: free text."
+    QAOption:
+      type: object
+      required: [id, label]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        description: { type: string }
+        recommended: { type: boolean }
+    QAAnswer:
+      type: object
+      required: [selected_option_ids, selected_options, text, note, answered_by, answered_at]
+      properties:
+        selected_option_ids: { type: array, items: { type: string } }
+        selected_options: { type: array, items: { $ref: "#/components/schemas/QAOption" } }
+        text: { type: [string, "null"], description: Text answer, or the free "other" answer }
+        note: { type: [string, "null"] }
+        answered_by: { oneOf: [{ $ref: "#/components/schemas/UserRef" }, { type: "null" }] }
+        answered_at: { type: string }
+    QAItem:
+      type: object
+      required: [id, position, question, answer_type, options, allow_other, required, answer]
+      properties:
+        id: { type: string }
+        position: { type: integer }
+        question: { type: string }
+        answer_type: { $ref: "#/components/schemas/AnswerType" }
+        options: { type: array, items: { $ref: "#/components/schemas/QAOption" } }
+        allow_other: { type: boolean }
+        required: { type: boolean }
+        answer: { oneOf: [{ $ref: "#/components/schemas/QAAnswer" }, { type: "null" }] }
+    QA:
+      type: object
+      required: [key, project_key, title, status, state, target_key, context, provisional_decision, is_blocking, asked_by, assignee, items, created_at, answered_at, closed_at]
+      properties:
+        key: { type: string }
+        project_key: { type: string }
+        title: { type: string }
+        status: { type: string, enum: [open, answered, closed] }
+        state: { $ref: "#/components/schemas/StateRef" }
+        target_key: { type: [string, "null"] }
+        context: { type: string }
+        provisional_decision: { type: string }
+        is_blocking: { type: boolean }
+        asked_by: { $ref: "#/components/schemas/UserRef" }
+        assignee: { oneOf: [{ $ref: "#/components/schemas/UserRef" }, { type: "null" }] }
+        items: { type: array, items: { $ref: "#/components/schemas/QAItem" } }
+        created_at: { type: string }
+        answered_at: { type: [string, "null"] }
+        closed_at: { type: [string, "null"] }
+    CreateQAInput:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        target_key: { type: [string, "null"], description: Issue the questions are about (becomes the parent) }
+        project_key: { type: string, description: Required without target_key }
+        title: { type: string, description: Defaults to the first question }
+        context: { type: string }
+        provisional_decision: { type: string }
+        is_blocking: { type: boolean }
+        assignee: { type: [string, "null"], description: Defaults to the project owner }
+        priority: { $ref: "#/components/schemas/Priority" }
+        items:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            type: object
+            additionalProperties: false
+            required: [question, answer_type]
+            properties:
+              question: { type: string }
+              answer_type: { $ref: "#/components/schemas/AnswerType" }
+              options:
+                type: array
+                description: "Choices for single/multi_choice (2-6). For yes_no/ok_ng only id+recommended are used."
+                items:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    id: { type: string }
+                    label: { type: string }
+                    description: { type: string }
+                    recommended: { type: boolean }
+              allow_other: { type: boolean, description: Allow a free-text "other" answer (choices only) }
+              required: { type: boolean, default: true }
+    AnswerInput:
+      type: object
+      additionalProperties: false
+      required: [answers]
+      properties:
+        answers:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [item_id]
+            properties:
+              item_id: { type: string }
+              selected_option_ids: { type: array, items: { type: string } }
+              text: { type: [string, "null"] }
+              note: { type: [string, "null"] }
+
+    FeedEntry:
+      type: object
+      required: [kind, at, actor, issue, project_key]
+      properties:
+        kind: { type: string, enum: [checkpoint, question, state] }
+        at: { type: string }
+        actor: { $ref: "#/components/schemas/UserRef" }
+        issue: { $ref: "#/components/schemas/IssueRef" }
+        project_key: { type: string }
+        checkpoint: { $ref: "#/components/schemas/Checkpoint" }
+        question:
+          type: object
+          required: [status, is_blocking, item_count, target_key]
+          properties:
+            status: { type: string, enum: [open, answered, closed] }
+            is_blocking: { type: boolean }
+            item_count: { type: integer }
+            target_key: { type: string }
+        change:
+          type: object
+          required: [from, to]
+          properties:
+            from: { type: string }
+            to: { type: string }
+
+    Token:
+      type: object
+      required: [id, name, prefix, user, last_used_at, created_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        prefix: { type: string }
+        user: { $ref: "#/components/schemas/UserRef" }
+        last_used_at: { type: [string, "null"] }
+        created_at: { type: string }
+
+    Event:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [project.created, project.updated, issue.created, issue.updated, issue.deleted] }
+        project_key: { type: string }
+        issue_key: { type: string }
+        actor_id: { type: string }
+
+    StateInput:
+      type: object
+      required: [name, category]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        category: { $ref: "#/components/schemas/StateCategory" }
+        color: { type: string }
+    StatePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        color: { type: string }
+        position: { type: integer, description: 1-based position among the regular states; moves within the category }
+        is_default: { type: boolean, enum: [true] }
+        is_acceptance: { type: boolean, enum: [true] }
+
+    AcceptanceCriterion:
+      type: object
+      required: [id, position, description]
+      properties:
+        id: { type: string }
+        position: { type: integer }
+        description: { type: string }
+    ReviewResult: { type: string, enum: [ok, ng, na] }
+    AcceptanceReview:
+      type: object
+      required: [id, round, reviewer, verdict, summary, items, created_at]
+      properties:
+        id: { type: string }
+        round: { type: integer }
+        reviewer: { $ref: "#/components/schemas/UserRef" }
+        verdict: { type: string, enum: [accepted, rejected] }
+        summary: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            required: [criterion_id, description, result, note]
+            properties:
+              criterion_id: { type: string }
+              description: { type: string, description: The criterion text at review time }
+              result: { $ref: "#/components/schemas/ReviewResult" }
+              note: { type: string }
+        created_at: { type: string }
+    AcceptanceReadiness:
+      type: object
+      required: [open_children, open_qa, warnings, items]
+      properties:
+        open_children: { type: integer, description: Unfinished non-QA descendants }
+        open_qa: { type: integer, description: Unanswered QA among descendants }
+        warnings: { type: array, items: { type: string } }
+        items:
+          type: array
+          description: >
+            The unfinished descendants, then the unanswered QA (at most 100), nearest first.
+            Empty in the acceptance queue (GET /acceptance), which carries the counts only.
+          items:
+            type: object
+            required: [key, type, title, state, parent_key, assignee]
+            properties:
+              key: { type: string }
+              type: { $ref: "#/components/schemas/IssueType" }
+              title: { type: string }
+              state: { $ref: "#/components/schemas/StateRef" }
+              parent_key: { type: [string, "null"] }
+              assignee: { oneOf: [{ $ref: "#/components/schemas/UserRef" }, { type: "null" }] }
+    Acceptance:
+      type: object
+      required: [issue_key, in_acceptance, criteria, reviews, readiness]
+      properties:
+        issue_key: { type: string }
+        in_acceptance: { type: boolean }
+        criteria: { type: array, items: { $ref: "#/components/schemas/AcceptanceCriterion" } }
+        reviews: { type: array, items: { $ref: "#/components/schemas/AcceptanceReview" } }
+        readiness: { $ref: "#/components/schemas/AcceptanceReadiness" }
+    ReviewInput:
+      type: object
+      required: [verdict]
+      additionalProperties: false
+      properties:
+        verdict: { type: string, enum: [accepted, rejected] }
+        summary: { type: string, description: Required when rejected (差し戻し理由) }
+        items:
+          type: array
+          items:
+            type: object
+            required: [criterion_id, result]
+            additionalProperties: false
+            properties:
+              criterion_id: { type: string }
+              result: { $ref: "#/components/schemas/ReviewResult" }
+              note: { type: string }
+        force: { type: boolean, description: Accept despite unfinished children or unanswered QA }
+    AcceptanceQueueItem:
+      type: object
+      required: [issue, criteria_count, rounds, last_review, readiness]
+      properties:
+        issue: { $ref: "#/components/schemas/Issue" }
+        criteria_count: { type: integer }
+        rounds: { type: integer }
+        last_review: { oneOf: [{ $ref: "#/components/schemas/AcceptanceReview" }, { type: "null" }] }
+        readiness: { $ref: "#/components/schemas/AcceptanceReadiness" }
+
+    StoryStatus:
+      type: string
+      enum: [draft, ready, in_progress, done]
+      description: >-
+        draft = no acceptance criteria; ready = criteria, no linked work started; in_progress = linked
+        work under way; done = every linked issue completed or canceled, at least one completed.
+    Persona:
+      type: object
+      required: [key, name, kind, description, position, created_at, updated_at]
+      properties:
+        key: { type: string, example: TAPP-P1 }
+        name: { type: string }
+        kind: { type: string, enum: [human, agent] }
+        description: { type: string }
+        position: { type: integer }
+        created_at: { type: string }
+        updated_at: { type: string }
+    PersonaInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        kind: { type: string, enum: [human, agent], default: human }
+        description: { type: string }
+    PersonaPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        kind: { type: string, enum: [human, agent] }
+        description: { type: string }
+        position: { type: integer }
+    Job:
+      type: object
+      required: [key, persona_key, situation, motivation, outcome, activity_keys, position, created_at, updated_at]
+      properties:
+        key: { type: string, example: TAPP-J3 }
+        persona_key: { type: [string, "null"] }
+        situation: { type: string, description: "When ..." }
+        motivation: { type: string, description: "I want to ..." }
+        outcome: { type: string, description: "So I can ..." }
+        activity_keys: { type: array, items: { type: string } }
+        position: { type: integer }
+        created_at: { type: string }
+        updated_at: { type: string }
+    JobInput:
+      type: object
+      required: [motivation]
+      additionalProperties: false
+      properties:
+        persona_key: { type: [string, "null"] }
+        situation: { type: string }
+        motivation: { type: string }
+        outcome: { type: string }
+        activity_keys: { type: array, items: { type: string } }
+    JobPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        persona_key: { type: [string, "null"] }
+        situation: { type: string }
+        motivation: { type: string }
+        outcome: { type: string }
+        activity_keys: { type: array, items: { type: string }, description: Replaces the links }
+        position: { type: integer }
+    StoryActivity:
+      type: object
+      required: [key, persona_key, name, description, position, steps, created_at, updated_at]
+      properties:
+        key: { type: string, example: TAPP-A1 }
+        persona_key: { type: [string, "null"] }
+        name: { type: string }
+        description: { type: string }
+        position: { type: integer }
+        steps: { type: array, items: { $ref: "#/components/schemas/Step" } }
+        created_at: { type: string }
+        updated_at: { type: string }
+    ActivityInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        persona_key: { type: [string, "null"] }
+        name: { type: string }
+        description: { type: string }
+    Release:
+      type: object
+      required: [key, name, goal, status, metric, position, stories, done, created_at, updated_at]
+      properties:
+        key: { type: string, description: "e.g. TAPP-RL1" }
+        name: { type: string, description: "The text stories carry in release, e.g. R1" }
+        goal: { type: string, description: "The outcome of the slice" }
+        status: { $ref: "#/components/schemas/ReleaseStatus" }
+        metric: { type: string }
+        position: { type: integer }
+        stories: { type: integer, description: Active stories in the slice }
+        done: { type: integer, description: Of which done }
+        created_at: { type: string }
+        updated_at: { type: string }
+    ReleaseStatus:
+      type: string
+      enum: [planned, building, shipped]
+      description: "計画中 / 作っている / 出した"
+    ReleaseInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        goal: { type: string }
+        status: { $ref: "#/components/schemas/ReleaseStatus" }
+        metric: { type: string }
+    ReleasePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        goal: { type: string }
+        status: { $ref: "#/components/schemas/ReleaseStatus" }
+        metric: { type: string }
+        position: { type: integer }
+    ActivityPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        persona_key: { type: [string, "null"] }
+        name: { type: string }
+        description: { type: string }
+        position: { type: integer }
+    Step:
+      type: object
+      required: [key, activity_key, name, description, position]
+      properties:
+        key: { type: string, example: TAPP-A1-2 }
+        activity_key: { type: string }
+        name: { type: string }
+        description: { type: string }
+        position: { type: integer }
+    StepInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        description: { type: string }
+    StepPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        description: { type: string }
+        position: { type: integer }
+    StoryIssue:
+      type: object
+      required: [key, type, title, state_name, state_category]
+      properties:
+        key: { type: string }
+        type: { $ref: "#/components/schemas/IssueType" }
+        title: { type: string }
+        state_name: { type: string }
+        state_category: { type: string }
+    Story:
+      type: object
+      required: [key, title, body, persona_key, i_want, so_that, release, position, step_keys, status, criteria_count, issues, created_at, updated_at]
+      properties:
+        key: { type: string, example: TAPP-ST12 }
+        title: { type: string }
+        body: { type: string, description: "Free text (Markdown). A story can be just a title and a body." }
+        persona_key: { type: [string, "null"] }
+        i_want: { type: string }
+        so_that: { type: string }
+        release: { type: string, description: "Release slice, e.g. R1; empty = not planned" }
+        position: { type: integer }
+        step_keys: { type: array, items: { type: string } }
+        status: { $ref: "#/components/schemas/StoryStatus" }
+        criteria_count: { type: integer }
+        issues: { type: array, items: { $ref: "#/components/schemas/StoryIssue" } }
+        created_at: { type: string }
+        updated_at: { type: string }
+        criteria: { type: array, description: Detail only., items: { $ref: "#/components/schemas/Criterion" } }
+        history: { type: array, description: Detail only. Newest first, at most 50., items: { $ref: "#/components/schemas/ReqChange" } }
+    StoryInput:
+      type: object
+      required: [title]
+      additionalProperties: false
+      properties:
+        title: { type: string }
+        body: { type: string, description: "Free text (Markdown). A story can be just a title and a body." }
+        persona_key: { type: [string, "null"] }
+        i_want: { type: string }
+        so_that: { type: string }
+        release: { type: string }
+        step_keys: { type: array, items: { type: string } }
+    StoryPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        title: { type: string }
+        body: { type: string, description: "Free text (Markdown). A story can be just a title and a body." }
+        persona_key: { type: [string, "null"] }
+        i_want: { type: string }
+        so_that: { type: string }
+        release: { type: string }
+        step_keys: { type: array, items: { type: string }, description: Replaces the placement }
+        position: { type: integer }
+    Criterion:
+      type: object
+      required: [key, story_key, given, when, then, position, created_at, updated_at]
+      properties:
+        key: { type: string, example: TAPP-AC42 }
+        story_key: { type: string }
+        given: { type: string }
+        when: { type: string }
+        then: { type: string }
+        position: { type: integer }
+        created_at: { type: string }
+        updated_at: { type: string }
+    CriterionInput:
+      type: object
+      required: [then]
+      additionalProperties: false
+      properties:
+        given: { type: string }
+        when: { type: string }
+        then: { type: string }
+    CriterionPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        given: { type: string }
+        when: { type: string }
+        then: { type: string }
+        position: { type: integer }
+    ReqChange:
+      type: object
+      required: [entity_key, action, detail, actor, created_at]
+      properties:
+        entity_key: { type: string }
+        action: { type: string, enum: [created, updated, archived, linked, unlinked] }
+        detail: { type: object, additionalProperties: true }
+        actor: { $ref: "#/components/schemas/UserRef" }
+        created_at: { type: string }
+    StoryRef:
+      type: object
+      required: [key, title, body, persona_key, i_want, so_that, step_keys, criteria]
+      properties:
+        key: { type: string }
+        title: { type: string }
+        body: { type: string, description: "Free text (Markdown). A story can be just a title and a body." }
+        persona_key: { type: [string, "null"] }
+        i_want: { type: string }
+        so_that: { type: string }
+        step_keys: { type: array, items: { type: string } }
+        criteria: { type: array, items: { $ref: "#/components/schemas/Criterion" } }
+    DraftInput:
+      type: object
+      additionalProperties: false
+      properties:
+        key: { type: string, description: Default the target key + D + a number (TAPPD1) }
+        name: { type: string }
+        from: { type: string, enum: [copy, empty], default: copy }
+        requirements_mode: { $ref: "#/components/schemas/RequirementsMode" }
+    ImportChange:
+      type: object
+      required: [field, from, to]
+      properties:
+        field: { type: string }
+        from: { type: string }
+        to: { type: string }
+    ImportItem:
+      type: object
+      required: [kind, action, draft_key, target_key, label, changes, conflict]
+      properties:
+        kind: { type: string, enum: [persona, activity, step, job, release, story, criterion] }
+        action: { type: string, enum: [create, update, archive, restore] }
+        draft_key: { type: [string, "null"] }
+        target_key: { type: [string, "null"], description: Null for create (the key is given on import) }
+        label: { type: string }
+        changes: { type: array, items: { $ref: "#/components/schemas/ImportChange" } }
+        conflict: { type: boolean, description: The target element changed since the draft last matched it }
+    ImportPlan:
+      type: object
+      required: [draft_key, target_key, items, target_only, counts, conflicts, warnings]
+      properties:
+        draft_key: { type: string }
+        target_key: { type: string }
+        items: { type: array, items: { $ref: "#/components/schemas/ImportItem" } }
+        target_only:
+          type: array
+          description: Active target elements the draft does not know (kept as they are)
+          items:
+            type: object
+            required: [kind, key, label]
+            properties: { kind: { type: string }, key: { type: string }, label: { type: string } }
+        counts: { type: object, additionalProperties: { type: integer } }
+        conflicts: { type: integer }
+        warnings: { type: array, items: { type: string } }
+    ImportInput:
+      type: object
+      additionalProperties: false
+      properties:
+        force: { type: boolean, default: false }
+    ImportResult:
+      type: object
+      required: [plan, created, warnings]
+      properties:
+        plan: { $ref: "#/components/schemas/ImportPlan" }
+        created: { type: array, items: { type: string }, description: Target keys given to new elements }
+        warnings: { type: array, items: { type: string } }
+    StoryMap:
+      type: object
+      required: [project_key, mode, draft_of, personas, jobs, activities, stories, releases, release_slices, gaps]
+      properties:
+        project_key: { type: string }
+        mode: { $ref: "#/components/schemas/RequirementsMode" }
+        draft_of: { type: [string, "null"], description: The target's key when this project is a draft }
+        personas: { type: array, items: { $ref: "#/components/schemas/Persona" } }
+        jobs: { type: array, items: { $ref: "#/components/schemas/Job" } }
+        activities: { type: array, items: { $ref: "#/components/schemas/StoryActivity" } }
+        stories: { type: array, items: { $ref: "#/components/schemas/Story" } }
+        releases: { type: array, items: { type: string }, description: Slice names in map order }
+        release_slices: { type: array, items: { $ref: "#/components/schemas/Release" } }
+        gaps:
+          type: object
+          required: [stories_without_steps, steps_without_stories, stories_without_criteria, stories_without_issues, jobs_without_activities]
+          properties:
+            stories_without_steps: { type: array, items: { type: string } }
+            steps_without_stories: { type: array, items: { type: string } }
+            stories_without_criteria: { type: array, items: { type: string } }
+            stories_without_issues: { type: array, items: { type: string } }
+            jobs_without_activities: { type: array, items: { type: string } }
+    SavedView:
+      type: object
+      required: [id, name, project_key, filter, display, position, created_at, updated_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        project_key: { type: [string, "null"], description: null = across projects }
+        filter: { $ref: "#/components/schemas/Filter" }
+        display: { type: object, additionalProperties: true, description: 'UI settings, e.g. {"view": "map", "group": "state", "sort": "updated"}' }
+        position: { type: integer }
+        created_at: { type: string }
+        updated_at: { type: string }
+    SavedViewInput:
+      type: object
+      required: [name]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        project_key: { type: [string, "null"] }
+        filter: { $ref: "#/components/schemas/Filter" }
+        display: { type: object, additionalProperties: true }
+    SavedViewPatch:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        filter: { $ref: "#/components/schemas/Filter" }
+        display: { type: object, additionalProperties: true }
+        position: { type: integer }

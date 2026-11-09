@@ -1,0 +1,32 @@
+# GoReleaser configuration (https://goreleaser.com). `make dist` builds the
+# same archives without GoReleaser.
+version: 2
+project_name: taskapp
+
+before:
+  hooks:
+    # The web UI is embedded into the binary, so it must be built first.
+    - pnpm install --frozen-lockfile
+    - pnpm --filter taskapp-web build
+
+builds:
+  - main: ./cmd/taskapp
+    binary: taskapp
+    env: [CGO_ENABLED=0] # modernc.org/sqlite is pure Go
+    flags: [-trimpath]
+    ldflags: ["-s -w -X main.version={{.Version}}"]
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [README.md, docs/06-guide.md]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github

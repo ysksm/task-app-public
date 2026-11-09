@@ -1,0 +1,25 @@
+<section id="sequence" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<svg aria-label="人間・UI・taskapp・ORCA・エージェントの間のやりとりを時系列で示すシーケンス図" style="position:absolute;left:0px;top:0px;width:1920px;height:1080px" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><marker id="sq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4A5160"/></marker></defs><path d="M300 330 L300 900" stroke="#C9C7BF" stroke-width="2" stroke-dasharray="6 6"/><path d="M640 330 L640 900" stroke="#C9C7BF" stroke-width="2" stroke-dasharray="6 6"/><path d="M980 330 L980 900" stroke="#C9C7BF" stroke-width="2" stroke-dasharray="6 6"/><path d="M1320 330 L1320 900" stroke="#C9C7BF" stroke-width="2" stroke-dasharray="6 6"/><path d="M1660 330 L1660 900" stroke="#C9C7BF" stroke-width="2" stroke-dasharray="6 6"/><g fill="none" stroke="#4A5160" stroke-width="2.5"><path d="M300 400 L634 400" marker-end="url(#sq)"/><path d="M1320 448 L986 448" marker-end="url(#sq)"/><path d="M980 496 L1314 496" marker-end="url(#sq)"/><path d="M1320 544 L1654 544" marker-end="url(#sq)"/><path d="M1660 592 L986 592" marker-end="url(#sq)"/><path d="M1660 640 L986 640" marker-end="url(#sq)"/><path d="M980 688 L646 688" marker-end="url(#sq)"/><path d="M1660 736 L986 736" marker-end="url(#sq)"/><path d="M300 784 L634 784" marker-end="url(#sq)"/><path d="M1660 832 L986 832" marker-end="url(#sq)"/><path d="M300 880 L634 880" marker-end="url(#sq)"/></g></svg>
+<p style="position:absolute;left:190px;top:286px;width:220px;font-size:24px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:12px;padding:8px 8px;text-align:center;line-height:1.35;">人間</p>
+<p style="position:absolute;left:530px;top:286px;width:220px;font-size:24px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:12px;padding:8px 8px;text-align:center;line-height:1.35;">taskapp UI</p>
+<p style="position:absolute;left:870px;top:286px;width:220px;font-size:24px;font-weight:700;color:#F5F4EF;background:#1B1F2A;border-radius:12px;padding:8px 8px;text-align:center;line-height:1.35;">taskapp</p>
+<p style="position:absolute;left:1210px;top:286px;width:220px;font-size:24px;font-weight:700;color:#F5F4EF;background:#2F7D8C;border-radius:12px;padding:8px 8px;text-align:center;line-height:1.35;">ORCA</p>
+<p style="position:absolute;left:1550px;top:286px;width:220px;font-size:24px;font-weight:700;color:#F5F4EF;background:#B85A1E;border-radius:12px;padding:8px 8px;text-align:center;line-height:1.35;">エージェント</p>
+<p style="position:absolute;left:308px;top:366px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">ストーリー・タスク作成</p>
+<p style="position:absolute;left:988px;top:414px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">POST /search/jql（担当分）</p>
+<p style="position:absolute;left:988px;top:462px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">担当タスク一覧</p>
+<p style="position:absolute;left:1328px;top:510px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">worktree 作成・起動</p>
+<p style="position:absolute;left:988px;top:558px;width:664px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">MCP transition_issue（In Progress）</p>
+<p style="position:absolute;left:988px;top:606px;width:664px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">MCP record_checkpoint（判断基準つき）</p>
+<p style="position:absolute;left:648px;top:654px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">SSE で更新を通知</p>
+<p style="position:absolute;left:988px;top:702px;width:664px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">MCP ask_question（ブロッキング）</p>
+<p style="position:absolute;left:308px;top:750px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">QA に回答</p>
+<p style="position:absolute;left:988px;top:798px;width:664px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">MCP get_question_answers</p>
+<p style="position:absolute;left:308px;top:846px;width:324px;font-size:22px;color:#1B1F2A;text-align:center;white-space:nowrap">受入検査 → 合格</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · ORCA × エージェント</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">タスク取得から受入まで</h2>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 15</p>
+<aside>ORCA は Jira 互換 API でタスクを取り、worktree 内で起動したエージェントは MCP で進捗と質問を記録する。</aside>
+</section>

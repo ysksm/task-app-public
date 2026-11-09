@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>利用ガイド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#2F7D8C"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#7FC4CF;letter-spacing:2px">USER GUIDE</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:96px;font-weight:900;line-height:1.15;color:#F5F4EF">利用ガイド</h1>
+<p style="font-size:40px;color:#B9BED0;line-height:1.5">インストールから、エージェント・ORCA の接続、日々の使い方、ほかの端末からの利用まで</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">AIエージェントと人間のタスク管理アプリ</p>
+<p style="font-size:28px;color:#B9BED0">2026-10-12</p>
+</div>
+</section>
+<section id="install" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">01 · インストール</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">単一バイナリを置いて起動するだけ</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:24px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">$ taskapp serve
+# → http://127.0.0.1:7700
+#   この PC のブラウザはログインなし
+#   既定は 127.0.0.1 だけで待ち受け
+
+# デモデータで試す
+$ taskapp seed --preset demo --data /tmp/demo
+$ taskapp serve --data /tmp/demo</pre>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">配布物</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">macOS / Linux / Windows（amd64・arm64）のアーカイブ。Web UI も中に入っている</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">データ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">~/.taskapp/taskapp.db（SQLite）。--data か TASKAPP_DATA で変更</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 10</p>
+</section>
+<section id="setup" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">02 · 最初の設定</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">プロジェクト・エージェント・トークンを用意する</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">1. プロジェクト</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">キー（例: APP）はイシューのキーと Jira 連携に使うため変更不可</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">2. エージェント</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">設定 › メンバーとエージェントで claude などを追加</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">3. トークン</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">設定 › API トークンで発行。目のボタンで後から表示でき、MCP・Jira のコマンドにも入る</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">4. ステータス・ラベル</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">イシュー一覧の歯車からプロジェクト設定</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 10</p>
+</section>
+<section id="agent" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">03 · エージェントをつなぐ（MCP）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">Claude Code に登録すれば、判断と確認が残る</h2>
+</div>
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:24px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">$ claude mcp add --scope user taskapp -e TASKAPP_TOKEN=&lt;トークン&gt; -- taskapp mcp
+# --scope  user: 自分・全プロジェクト / local: このプロジェクトだけ
+#          project: .mcp.json で共有（トークンは ${TASKAPP_TOKEN}）</pre>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">着手</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">list_my_issues → transition_issue</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">判断を残す</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">record_checkpoint（判断基準・確信度・進捗）</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">人間に聞く</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">ask_question → get_question_answers</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">仕上げ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">request_acceptance で受入待ちへ</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 10</p>
+</section>
+<section id="orca" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">04 · ORCA をつなぐ（Jira REST API v3）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">Jira 連携の Cloud モードにそのまま登録する</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#2F7D8C"><th style="width:30%;color:#F5F4EF;padding:0.4em 0.6em">ORCA の項目</th><th style="width:70%;color:#F5F4EF;padding:0.4em 0.6em">入れる値</th></tr><tr><td>接続方式</td><td>Cloud</td></tr><tr style="background:#ECEBE4"><td>サイト URL</td><td>http://127.0.0.1:7700</td></tr><tr><td>メールアドレス</td><td>トークンのユーザーのメールアドレス（未設定なら ユーザー名@taskapp.local）</td></tr><tr style="background:#ECEBE4"><td>API トークン</td><td>設定 › API トークンで発行したもの</td></tr></table>
+<p style="font-size:24px;color:#4A5160">つながらないときは taskapp serve --log-requests で ORCA のリクエストを記録。scripts/jira-smoke.sh で同じ流れを curl から確認できる</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 10</p>
+</section>
+<section id="daily" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">05 · 日々の使い方</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">⌘K でどこへでも、G → 文字キーで主要画面へ</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#2F7D8C"><th style="width:30%;color:#F5F4EF;padding:0.4em 0.6em">やりたいこと</th><th style="width:70%;color:#F5F4EF;padding:0.4em 0.6em">場所</th></tr><tr><td>自分の担当を見る</td><td>マイタスク（G → M）</td></tr><tr style="background:#ECEBE4"><td>全プロジェクトを見る</td><td>全体ボード（G → B）。列は分類、行はプロジェクト（★注力 → 通常 → 🌱その他の段。「注力のみ」で絞る）</td></tr><tr><td>エージェントの質問に答える</td><td>QA インボックス（G → Q）</td></tr><tr style="background:#ECEBE4"><td>判断の経緯を見る</td><td>イシュー詳細のチェックポイント / エージェント活動（G → E）</td></tr><tr><td>受入検査をする</td><td>受入検査（G → A）</td></tr><tr style="background:#ECEBE4"><td>全体像を見る・付け替える</td><td>イシュー一覧の「マップ」（ドラッグで親を変更、PNG 保存）</td></tr><tr><td>条件を保存する</td><td>フィルタバーの「ビューを保存」</td></tr><tr style="background:#ECEBE4"><td>どこまで使えるか見る</td><td>設定 › 利用状況と上限（オーナー）。1 万件・2,000 件・1,000 ノード・ディスクへの到達率</td></tr><tr><td>何のために作るか整理する</td><td>イシュー一覧の「ストーリーマップ」。ペルソナ・ジョブ、活動 → 手順、ストーリーと受け入れ条件、イシューをつなぐ</td></tr></table>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 10</p>
+</section>
+<section id="backup" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">06 · 自動バックアップ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">起動しておくだけで、1 日ごとに複製が残る</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<table style="font-size:24px;color:#1B1F2A"><tr style="background:#2F7D8C"><th style="width:22%;color:#F5F4EF;padding:0.4em 0.6em">項目</th><th style="width:36%;color:#F5F4EF;padding:0.4em 0.6em">既定</th><th style="width:42%;color:#F5F4EF;padding:0.4em 0.6em">変えるとき</th></tr><tr><td>保存先</td><td>~/.taskapp/backups/</td><td>--backup-dir DIR</td></tr><tr style="background:#ECEBE4"><td>間隔</td><td>24 時間</td><td>--backup-interval 6h（0 で停止）</td></tr><tr><td>保持数</td><td>新しい 7 件</td><td>--backup-keep 30（0 ですべて）</td></tr></table>
+<p style="font-size:24px;line-height:1.6;color:#4A5160">ファイル名は taskapp-YYYYMMDD-HHMMSS.db。データが変わっていないときは取らないので、使わない間に古い世代が押し出されない</p>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">画面で確認</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">設定 › データ。保存先・最新・次回の確認時刻・一覧。「今すぐバックアップ」でその場で 1 件</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">手動でも</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">taskapp backup（同じフォルダへ）。全データの JSON は taskapp export</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">7 / 10</p>
+</section>
+<section id="restore" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">07 · 復元</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">サーバーを止めて、restore で戻す</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:24px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap"># 1. taskapp serve を止める
+# 2. バックアップ（.db）から戻す
+$ taskapp restore --from \
+    ~/.taskapp/backups/taskapp-20261012-090000.db
+# 3. 起動し直す
+$ taskapp serve
+
+# エクスポート（.json）からは空のディレクトリへ
+$ taskapp import --data ~/.taskapp-new --in taskapp.json</pre>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">いまのデータは残る</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">taskapp.db.before-restore-&lt;日時&gt; として退避。戻しすぎたらこれを --from に</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">安全のために</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">起動中は断る。taskapp の DB でないファイルや、新しいバージョンのバックアップも断る</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">8 / 10</p>
+</section>
+<section id="remote" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">08 · ほかの端末から使う</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">--host で開き、ほかの端末はパスワードでログイン</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:22px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap"># 1. 外から接続できるように起動
+$ taskapp serve --host 0.0.0.0
+# 2. パスワードを設定（設定 › アカウントでも可）
+$ taskapp passwd --user kasa
+# 3. スマホ・別の PC で開いてログイン
+#    http://192.168.1.10:7700
+# 4. 別の PC のエージェント（MCP HTTP）
+$ claude mcp add --transport http taskapp \
+    http://192.168.1.10:7700/mcp \
+    --header "Authorization: Bearer &lt;トークン&gt;"</pre>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">パスワードの設定</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">自分: 設定 › アカウント。ほかの人: オーナーがメンバー一覧から。コマンド: taskapp passwd</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">暗号化されない</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">自宅・社内の LAN か Tailscale などの VPN の中だけで。パスワードなしで入れるのはこの PC だけ</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">9 / 10</p>
+</section>
+<section id="proxy" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">09 · リバースプロキシの後ろで動かす</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">tailscale serve の後ろでは --behind-proxy</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:22px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap"># 1. 127.0.0.1 で待ち受け、プロキシの後ろと伝える
+$ taskapp serve --behind-proxy \
+    --public-url https://task.&lt;tailnet名&gt;.ts.net
+# 2. HTTPS はプロキシにまかせる
+$ tailscale serve --bg 7700
+# 3. 先にパスワードを設定（自動ログインは止まる）
+$ taskapp passwd --user kasa
+# サービス用ユーザーで動かすときはオーナー名を指定
+$ TASKAPP_OWNER=kasa taskapp serve --behind-proxy ...</pre>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">付けないと MCP が 403</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">プロキシ経由の MCP（HTTP）は、DNS リバインディング対策で断られる。トークンは付けても必須のまま</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">この PC でもログイン画面</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">プロキシ経由だと、この PC かどうかを見分けられないため。--public-url の URL が設定画面と MCP のコマンドに出る</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">10 / 10</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

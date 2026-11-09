@@ -1,0 +1,12 @@
+/bin/
+node_modules/
+web/dist/*
+!web/dist/.gitkeep
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+/.claude/worktrees/
+/dist/
+/e2e/test-results/
+/e2e/playwright-report/

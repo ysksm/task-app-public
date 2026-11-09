@@ -1,0 +1,12 @@
+<section id="write" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · 書くときの決まり</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">文言とロールで探し、待ってから数える</h2>
+</div>
+<div style="display:flex;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">文言とロールで探す</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">getByRole("button", { name: "回答する" })。CSS クラスに頼らない。data-testid は特定しにくい所だけ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">API でも確かめる</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">画面の表示だけでは保存されたか分からない。expect.poll で反映を待つ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">待ってから数える</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">.all() は待たない。先に expect で表示を待つ。時刻の表示は確かめない</p></div></div>
+<div style="display:flex;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">確認ダイアログ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">window.confirm は自動でキャンセルされる。必要なら page.once("dialog", d =&gt; d.accept())</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">API テストは apitest/</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">startServer({ preset, setup, serveArgs })。形は assertOperation で OpenAPI と照合</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 6</p>
+</section>

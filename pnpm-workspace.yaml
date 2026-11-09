@@ -1,0 +1,6 @@
+packages:
+  - apitest
+  - e2e
+  - web
+allowBuilds:
+  esbuild: true

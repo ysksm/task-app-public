@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>要求の層: 構造をゆるくする案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#5B58D6"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">DEV CYCLE · LOOSER OPTIONS</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:88px;font-weight:900;line-height:1.2;color:#F5F4EF">要求の層<br>構造をゆるくする案</h1>
+<p style="font-size:38px;color:#B9BED0;line-height:1.5">M1（案 A）は固すぎる、という感想を受けて。<br>M1 の画面は進めたまま、ゆるい案を三つ比べる</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">docs/09-requirements-loose.md · 提案だけ（未実装）</p>
+<p style="font-size:28px;color:#B9BED0">2026-11-02 · 確認待ち</p>
+</div>
+</section>
+<section id="where" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · いまの位置</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">M1 は PR #15 で進め、その上で「どこまでゆるめるか」を決める</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">M1（案 A）</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">PR #15 に出した。<b style="color:#1B1F2A">テーブル 11・API 25 操作</b>。ペルソナ → ジョブ → 活動 → 手順 → ストーリー → 条件 → イシュー</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">感想</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">よくできているが、そのぶん<b style="color:#1B1F2A">ガチガチすぎる</b>。画面はこのまま進め、ゆるい案も見たい</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">この資料</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">固いところを <b style="color:#1B1F2A">K1〜K6</b> に分け、それを外す案 <b style="color:#1B1F2A">B・C・D</b> を比べる。どれも実装はまだ</div></div>
+</div>
+<div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:24px 34px;font-size:26px;line-height:1.6">利用者はオーナーと AI だけ。<b style='color:#A9A7FF'>重い分類は、共有する相手がいるときほどには役に立たない</b></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">2 / 12</p>
+</section>
+<section id="rigid" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 何が固いのか</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">固さは DB よりも「書くときの決まり」から来ている</h2>
+</div>
+<table style="font-size:26px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:7%;color:#F5F4EF;padding:0.45em 0.7em">#</th><th style="width:43%;color:#F5F4EF;padding:0.45em 0.7em">固いところ</th><th style="width:50%;color:#F5F4EF;padding:0.45em 0.7em">使うときに起きること</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K1</b></td><td style="padding:0.45em 0.7em">キーが 6 系列（P・J・A・A-n・ST・AC）</td><td style="padding:0.45em 0.7em">何を何と呼ぶかを覚えないと書けない</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K2</b></td><td style="padding:0.45em 0.7em">テーブル 11、うち N:N が 4</td><td style="padding:0.45em 0.7em">API 25 操作。AI も覚える道具が多い</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K3</b></td><td style="padding:0.45em 0.7em">書く順番が決まった鎖</td><td style="padding:0.45em 0.7em">マップに載せるには、先に活動と手順を作る</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K4</b></td><td style="padding:0.45em 0.7em">受け入れ条件は前提・操作・結果の 3 欄</td><td style="padding:0.45em 0.7em">「こうなっていればいい」の 1 行が書きにくい</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K5</b></td><td style="padding:0.45em 0.7em">マップの軸が固定（手順 × リリース）</td><td style="padding:0.45em 0.7em">「朝」「AI」など別の切り口で並べられない</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">K6</b></td><td style="padding:0.45em 0.7em">書く前に分類を決める</td><td style="padding:0.45em 0.7em">思いついたときに、すぐ書き留められない</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">3 / 12</p>
+</section>
+<section id="keep" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · どの案でも守ること</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">AI が、イシューの「なぜ」を読めること</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">なぜ要るか</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">08 の棚卸しで見つけた抜け <b style="color:#1B1F2A">B2-2</b>：AI は担当のイシューを読めても、<b style="color:#1B1F2A">何のための作業か</b>がわからない。要求の層を足す一番の理由</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">読む道具</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">MCP の <b style="color:#1B1F2A">get_issue</b>。どの案でも、ここに「なぜ」（要求のタイトル・本文・条件）が入る</div></div>
+</div>
+<table style="font-size:25px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:26%;color:#F5F4EF;padding:0.45em 0.7em">案</th><th style="width:74%;color:#F5F4EF;padding:0.45em 0.7em">get_issue で読める「なぜ」</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">A（M1）</b></td><td style="padding:0.45em 0.7em">stories：ストーリーのタイトル・したいこと・受け入れ条件</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">B 要求メモ</b></td><td style="padding:0.45em 0.7em">つながったメモのタイトル・本文・チェック行</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">C イシューで書く</b></td><td style="padding:0.45em 0.7em">親の「要求」イシューの説明と受入基準（今の get_issue のまま）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D M1 をゆるく使う</b></td><td style="padding:0.45em 0.7em">A と同じ＋ストーリーの本文</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">4 / 12</p>
+</section>
+<section id="b" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · 案 B「要求メモ」</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">いちばんゆるい：要求は 1 種類のメモだけ。分類はタグ</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start"><div style="width:760px;box-sizing:border-box;background:#16171C;color:#E6E7EB;border:1px solid #2C2F38;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:16px"><div style="height:40px;border-bottom:1px solid #2C2F38;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:16px;color:#8B8F9C"><span style="color:#E6E7EB;font-weight:600">要求メモ</span></div><div style="padding:16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">TAPP-R12</div>
+<div style="font-size:22px;font-weight:600;margin:4px 0 10px">朝、今日やるものを数件に絞りたい</div>
+<div><span style="display:inline-block;font-size:18px;padding:2px 10px;margin:2px 6px 2px 0;border-radius:999px;background:#4E8DF522;color:#4E8DF5;border:1px solid #4E8DF566">@オーナー</span><span style="display:inline-block;font-size:18px;padding:2px 10px;margin:2px 6px 2px 0;border-radius:999px;background:#E0A23D22;color:#E0A23D;border:1px solid #E0A23D66">#朝</span><span style="display:inline-block;font-size:18px;padding:2px 10px;margin:2px 6px 2px 0;border-radius:999px;background:#3FB27F22;color:#3FB27F;border:1px solid #3FB27F66">R1</span></div>
+<div style="margin-top:12px;line-height:1.7;color:#E6E7EB;font-size:16px">マイタスクを開いたら、未完了で注力のプロジェクトのものだけが見えてほしい。<br>回答待ちの QA は別の場所でいい。</div>
+<div style="margin-top:10px;line-height:1.8;font-size:16px">☐ 完了したものは最初から隠れている<br>☐ 注力のプロジェクトだけに絞れる<br>☑ 回答待ちの QA はサイドバーのバッジで見る</div>
+<div style="margin-top:12px;border-top:1px solid #2C2F38;padding-top:10px;font-size:14px;color:#8B8F9C">つながったイシュー：TAPP-41 · TAPP-42</div></div></div><div style="width:720px;box-sizing:border-box;background:#16171C;color:#E6E7EB;border:1px solid #2C2F38;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:16px"><div style="height:40px;border-bottom:1px solid #2C2F38;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:16px;color:#8B8F9C"><span style="color:#E6E7EB;font-weight:600">要求メモ · タグで並べる</span></div><div style="padding:16px"><div style="font-size:13px;color:#8B8F9C;margin-bottom:8px">横：<span style="color:#E6E7EB">#の付くタグ</span>　縦：<span style="color:#E6E7EB">R の付くタグ</span>（切り替えられる）</div>
+<div style="display:grid;grid-template-columns:50px 1fr 1fr 1fr;gap:8px;font-size:14px">
+<div></div><div style="color:#8B8F9C">#朝</div><div style="color:#8B8F9C">#AIに任せる</div><div style="color:#8B8F9C">タグなし</div>
+<div style="color:#8B8F9C">R1</div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #E0A23D;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">R12</div><div style="font-size:16px;line-height:1.35">今日の数件に絞る</div></div></div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #4E8DF5;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">R14</div><div style="font-size:16px;line-height:1.35">任せたものを追う</div></div></div><div></div>
+<div style="color:#8B8F9C">R2</div><div></div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #8B8F9C;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">R15</div><div style="font-size:16px;line-height:1.35">AI の質問をまとめて返す</div></div></div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #8B8F9C;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">R16</div><div style="font-size:16px;line-height:1.35">週末にふりかえる</div></div></div>
+</div></div></div></div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">書き方</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">本文は自由な Markdown。<b style="color:#1B1F2A">☐ の行が受け入れ条件</b>。@ は誰の、# は場面、R はリリース。どれも任意</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">マップ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">保存しない。<b style="color:#1B1F2A">タグで並べた見え方</b>。色は M1 と同じく、つながったイシューから計算</div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">5 / 12</p>
+</section>
+<section id="b-er" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · 案 B の DB</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">テーブルは 3 つ。ペルソナ・活動・リリースはタグの文字列になる</h2>
+</div>
+<div style="display:flex;gap:18px;align-items:center">
+<div style="width:220px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:12px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">projects</div><div style="font-size:17px;line-height:1.45;color:#4A5160">既存</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4A5160;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px">1:N<span style="font-size:30px;color:#5B58D6">→</span></div>
+<div style="width:330px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:12px 16px"><span style="float:right;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">req_notes</div><div style="font-size:17px;line-height:1.45;color:#4A5160">TAPP-R12 · title</div><div style="font-size:17px;line-height:1.45;color:#4A5160">body（Markdown）</div><div style="font-size:17px;line-height:1.45;color:#4A5160">parent_id（NULL 可）</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4A5160;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px">1:N<span style="font-size:30px;color:#5B58D6">→</span></div>
+<div style="width:300px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:12px 16px"><span style="float:right;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">req_note_tags</div><div style="font-size:17px;line-height:1.45;color:#4A5160">note_id, tag</div><div style="font-size:17px;line-height:1.45;color:#4A5160">'@オーナー' '#朝' 'R1'</div></div>
+</div>
+<div style="display:flex;gap:18px;align-items:center;margin-left:458px">
+<span style="font-size:30px;color:#5B58D6">↓</span><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px;color:#4A5160">1:N</span>
+</div>
+<div style="display:flex;gap:18px;align-items:center;margin-left:410px">
+<div style="width:300px;box-sizing:border-box;background:#FFFFFF;border:3px solid #5B58D6;border-radius:12px;padding:12px 16px"><span style="float:right;font-size:14px;font-weight:700;color:#F5F4EF;background:#5B58D6;border-radius:6px;padding:1px 6px">新規</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">req_note_issues</div><div style="font-size:17px;line-height:1.45;color:#4A5160">note_id, issue_id</div><div style="font-size:17px;line-height:1.45;color:#4A5160">N:N</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4A5160;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:15px">N:1<span style="font-size:30px;color:#5B58D6">→</span></div><div style="width:260px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:12px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">issues</div><div style="font-size:17px;line-height:1.45;color:#4A5160">既存（変更なし）</div></div>
+</div>
+<table style="font-size:24px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:22%;color:#F5F4EF;padding:0.45em 0.7em"></th><th style="width:78%;color:#F5F4EF;padding:0.45em 0.7em">案 B</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">なくなる固さ</b></td><td style="padding:0.45em 0.7em">K1〜K6 すべて</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">PR #15</b></td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">置き換え</b>。009 の 11 テーブルと API・画面を作り直す（本番データの移行はない）</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">弱いところ</b></td><td style="padding:0.45em 0.7em">タグの表記ゆれ。「手順はあるのにストーリーがない」などの抜けを機械で見つけにくい</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">6 / 12</p>
+</section>
+<section id="c" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 案 C「イシューで書く」</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">新しいものをほとんど足さない：要求はイシューの種別の一つ</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:flex-start"><div style="width:860px;box-sizing:border-box;background:#16171C;color:#E6E7EB;border:1px solid #2C2F38;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:16px"><div style="height:40px;border-bottom:1px solid #2C2F38;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:16px;color:#8B8F9C"><span style="color:#E6E7EB;font-weight:600">イシュー · 種別「要求」</span></div><div style="padding:16px"><div style="line-height:2;font-size:16px">
+<div><span style="color:#B07CF0">◆ 要求</span> TAPP-40 朝、今日やるものを数件に絞りたい <span style="color:#8B8F9C;font-size:13px">完了なし · 子 1/3 完了</span></div>
+<div style="padding-left:28px">├ <span style="color:#3FB27F">●</span> TAPP-41 完了を既定で隠す</div>
+<div style="padding-left:28px">├ <span style="color:#E0A23D">●</span> TAPP-42 注力のみを既定に</div>
+<div style="padding-left:28px">└ <span style="color:#8B8F9C">●</span> TAPP-43 回答待ち QA タブを外す</div>
+<div style="margin-top:6px;color:#8B8F9C;font-size:14px">受入基準（今のまま）：☐ 完了は隠れている　☐ 注力だけに絞れる</div></div></div></div>
+<div style="display:flex;flex-direction:column;gap:14px;flex:1">
+<div style="width:420px;box-sizing:border-box;background:#FFFFFF;border:3px solid #B85A1E;border-radius:12px;padding:12px 16px"><span style="float:right;font-size:14px;font-weight:700;color:#F5F4EF;background:#B85A1E;border-radius:6px;padding:1px 6px">列を追加</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">issues.type</div><div style="font-size:17px;line-height:1.45;color:#4A5160">+ 'requirement'</div><div style="font-size:17px;line-height:1.45;color:#4A5160">完了の状態を持たない</div><div style="font-size:17px;line-height:1.45;color:#4A5160">状態は子から計算して表示</div></div>
+<div style="width:420px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:12px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">acceptance_criteria</div><div style="font-size:17px;line-height:1.45;color:#4A5160">既存のまま</div><div style="font-size:17px;line-height:1.45;color:#4A5160">要求の受け入れ条件として使う</div></div>
+</div></div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:22%;color:#F5F4EF;padding:0.45em 0.7em"></th><th style="width:78%;color:#F5F4EF;padding:0.45em 0.7em">案 C</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">08 で見送った理由</b></td><td style="padding:0.45em 0.7em">「完了で閉じると要求も閉じる」→ 要求の種別には完了の状態を持たせないことで避ける</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">なくなる固さ</b></td><td style="padding:0.45em 0.7em">K1・K2・K4・K6（K3・K5 は親子とラベルの使い方しだい）</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">PR #15</b></td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">置き換え</b>（009 は使わない）。AI は今の get_issue で親を読めば足りる</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">弱いところ</b></td><td style="padding:0.45em 0.7em">一覧・マイタスク・全体ボードに「要求」が混ざり、どこでも隠す設定が要る。受入基準の意味が二つ重なる</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">7 / 12</p>
+</section>
+<section id="d" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:26px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">07 · 案 D「M1 をゆるく使う」（おすすめ）</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">テーブルは M1 のまま。決まりと画面をゆるめ、分類は後から AI と付ける</h2>
+</div>
+<table style="font-size:25px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:7%;color:#F5F4EF;padding:0.45em 0.7em">#</th><th style="width:75%;color:#F5F4EF;padding:0.45em 0.7em">変えること</th><th style="width:18%;color:#F5F4EF;padding:0.45em 0.7em">なくなる固さ</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D1</b></td><td style="padding:0.45em 0.7em">マップの上に<b style="color:#1B1F2A">ひとこと入力</b>。何も選ばずに入り、「未整理」の列に置かれる</td><td style="padding:0.45em 0.7em">K3・K6</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D2</b></td><td style="padding:0.45em 0.7em">ストーリーに<b style="color:#1B1F2A">本文</b>（自由な Markdown）。「したいこと」「そうすれば」は入っているときだけ出す</td><td style="padding:0.45em 0.7em">K6</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D3</b></td><td style="padding:0.45em 0.7em">受け入れ条件は<b style="color:#1B1F2A">1 行</b>（結果だけ）。前提・操作は「詳しく」で開く。DB はもともと空でよい</td><td style="padding:0.45em 0.7em">K4</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D4</b></td><td style="padding:0.45em 0.7em">ペルソナ・ジョブ・活動・手順は<b style="color:#1B1F2A">使うときだけ</b>。0 件ならマップは「リリース × 未整理」だけ。抜けは警告の色をやめて数だけ</td><td style="padding:0.45em 0.7em">K3・K5</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">D5</b></td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">AI が整える</b>：「ST7 を A1-2 に置いてよいか」を QA（yes/no）で聞く。オーナーは答えるだけ</td><td style="padding:0.45em 0.7em">K6</td></tr></table><div style="display:flex;gap:24px;align-items:center">
+<div style="width:380px;box-sizing:border-box;background:#FFFFFF;border:3px solid #B85A1E;border-radius:12px;padding:12px 16px"><span style="float:right;font-size:14px;font-weight:700;color:#F5F4EF;background:#B85A1E;border-radius:6px;padding:1px 6px">列を追加</span><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">req_stories</div><div style="font-size:17px;line-height:1.45;color:#4A5160">+ body（本文）</div><div style="font-size:17px;line-height:1.45;color:#4A5160">マイグレーション 010</div></div>
+<div style="width:300px;box-sizing:border-box;background:#ECEBE4;border:2px dashed #9AA0B0;border-radius:12px;padding:12px 16px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:19px;font-weight:600;margin-bottom:6px">ほかの 10 テーブル</div><div style="font-size:17px;line-height:1.45;color:#4A5160">M1 のまま</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">MCP</h3><div style="font-size:24px;line-height:1.6;color:#4A5160"><b style="color:#1B1F2A">update_story</b>（本文・置き場所・条件）を足し、AI が整理できるようにする</div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">8 / 12</p>
+</section>
+<section id="d-map" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">08 · 案 D の画面（ストーリーマップ）</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">思いついたら 1 行。置き場所は後で決める</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:1060px;box-sizing:border-box;background:#16171C;color:#E6E7EB;border:1px solid #2C2F38;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:16px"><div style="height:40px;border-bottom:1px solid #2C2F38;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:16px;color:#8B8F9C"><span style="color:#E6E7EB;font-weight:600">ストーリーマップ · TAPP　　<span style='color:#8B8F9C;font-weight:400'>抜け 3</span></span></div><div style="padding:16px"><div style="display:flex;gap:10px;align-items:center;background:#1E2027;border:1px solid #4E8DF5;border-radius:8px;padding:10px 14px;margin-bottom:14px"><span style="color:#4E8DF5">＋</span><span style="color:#E6E7EB">朝の画面で、AI に任せたものだけを見たい</span><span style="margin-left:auto;font-size:13px;color:#8B8F9C">Enter で「未整理」へ</span></div><div style="display:grid;grid-template-columns:60px 230px 230px 230px;gap:10px;font-size:14px">
+<div></div><div style="color:#E0A23D;font-weight:600">未整理 · 2</div><div style="color:#8B8F9C">A1 朝：今日を決める</div><div style="color:#8B8F9C">A3 AI に任せる</div>
+<div style="color:#8B8F9C">R1</div>
+<div style="background:#E0A23D14;border:1px dashed #E0A23D66;border-radius:8px;padding:8px"><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #8B8F9C;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">ST8</div><div style="font-size:16px;line-height:1.35">朝の画面で、AI に任せたものだけを見たい</div></div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #8B8F9C;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">ST7</div><div style="font-size:16px;line-height:1.35">週末に滞りを見たい</div></div></div>
+<div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #E0A23D;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">ST1</div><div style="font-size:16px;line-height:1.35">今日の数件に絞る</div><div style="margin-top:6px;font-size:13px;color:#8B8F9C">☐ 完了は最初から隠れている</div></div></div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #4E8DF5;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">ST3</div><div style="font-size:16px;line-height:1.35">任せたものを追う</div></div></div>
+<div style="color:#8B8F9C">R2</div><div></div><div></div><div><div style="background:#1E2027;border:1px solid #2C2F38;border-left:4px solid #8B8F9C;border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:13px;color:#8B8F9C">ST5</div><div style="font-size:16px;line-height:1.35">AI の質問をまとめて返す</div></div></div></div></div></div>
+<div style="display:flex;flex-direction:column;gap:18px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 24px"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">D1 ひとこと入力</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ペルソナも手順もリリースも選ばない。入ったものは「未整理」の列へ</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 24px"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">D3 条件は 1 行</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">カードの上で ☐ の 1 行。前提・操作は詳細の「詳しく」から</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 24px"><h3 style="font-size:30px;font-weight:700;color:#B85A1E">D4 抜けは数だけ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">警告の色をやめる。開けば一覧は出る</div></div>
+</div></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">9 / 12</p>
+</section>
+<section id="d-ai" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · 案 D5 AI が整える</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">分類は AI が提案し、オーナーは答えるだけ</h2>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start"><div style="width:900px;box-sizing:border-box;background:#16171C;color:#E6E7EB;border:1px solid #2C2F38;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:16px"><div style="height:40px;border-bottom:1px solid #2C2F38;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:16px;color:#8B8F9C"><span style="color:#E6E7EB;font-weight:600">QA</span></div><div style="padding:16px"><div style="font-size:13px;color:#8B8F9C">QA インボックス · claude から</div>
+<div style="font-size:20px;font-weight:600;margin:6px 0 12px">未整理のストーリー 2 件の置き場所</div>
+<div style="background:#1E2027;border:1px solid #2C2F38;border-radius:8px;padding:12px;margin-bottom:10px">
+<div>ST8「朝の画面で、AI に任せたものだけを見たい」を <b>A1-1 自分の未完了だけを見る</b>・R1 に置いてよいか</div>
+<div style="margin-top:8px;display:flex;gap:8px"><span style="background:#3FB27F;color:#0b1a12;border-radius:6px;padding:3px 14px">はい</span><span style="border:1px solid #2C2F38;border-radius:6px;padding:3px 14px">いいえ</span></div></div>
+<div style="background:#1E2027;border:1px solid #2C2F38;border-radius:8px;padding:12px">
+<div>ST7 の条件「滞りがわかる」を、次の 2 行に分けてよいか<br><span style="color:#8B8F9C">☐ 3 日動いていないものが上に出る　☐ プロジェクトごとの件数が出る</span></div>
+<div style="margin-top:8px;display:flex;gap:8px"><span style="background:#3FB27F;color:#0b1a12;border-radius:6px;padding:3px 14px">はい</span><span style="border:1px solid #2C2F38;border-radius:6px;padding:3px 14px">いいえ</span></div></div></div></div>
+<div style="display:flex;flex-direction:column;gap:18px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">流れ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">1. AI が <b style="color:#1B1F2A">get_storymap</b> で未整理と抜けを読む<br>2. 置き場所や条件の分け方を <b style="color:#1B1F2A">ask_question</b>（yes/no）で聞く<br>3. はい → AI が <b style="color:#1B1F2A">update_story</b> で直す</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">今あるものを使う</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">QA インボックスとバッジは今のまま。新しい画面は要らない</div></div>
+</div></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">10 / 12</p>
+</section>
+<section id="compare" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · くらべる</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">D は M1 を活かしたまま、使う人から見える固さを外す</h2>
+</div>
+<table style="font-size:24px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:18%;color:#F5F4EF;padding:0.45em 0.7em"></th><th style="width:19%;color:#F5F4EF;padding:0.45em 0.7em">A（M1・今）</th><th style="width:20%;color:#F5F4EF;padding:0.45em 0.7em">B 要求メモ</th><th style="width:20%;color:#F5F4EF;padding:0.45em 0.7em">C イシューで書く</th><th style="width:23%;color:#F5F4EF;padding:0.45em 0.7em">D M1 をゆるく使う</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">新しいテーブル</b></td><td style="padding:0.45em 0.7em">11</td><td style="padding:0.45em 0.7em">3</td><td style="padding:0.45em 0.7em">0</td><td style="padding:0.45em 0.7em">0（列 1）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">書き始めるまで</b></td><td style="padding:0.45em 0.7em">活動と手順を先に作る</td><td style="padding:0.45em 0.7em">タイトル 1 行</td><td style="padding:0.45em 0.7em">イシューを起票</td><td style="padding:0.45em 0.7em">ひとこと 1 行</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">受け入れ条件</b></td><td style="padding:0.45em 0.7em">前提・操作・結果</td><td style="padding:0.45em 0.7em">本文のチェック行</td><td style="padding:0.45em 0.7em">今の受入基準</td><td style="padding:0.45em 0.7em">1 行（詳しくも書ける）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">並べ方</b></td><td style="padding:0.45em 0.7em">手順 × リリース</td><td style="padding:0.45em 0.7em">タグで自由に</td><td style="padding:0.45em 0.7em">ボードのグループ</td><td style="padding:0.45em 0.7em">未整理 → 手順 × リリース</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">抜けを見つける</b></td><td style="padding:0.45em 0.7em">自動</td><td style="padding:0.45em 0.7em">むずかしい</td><td style="padding:0.45em 0.7em">親のない作業だけ</td><td style="padding:0.45em 0.7em">自動（整理した分）</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">PR #15</b></td><td style="padding:0.45em 0.7em">—</td><td style="padding:0.45em 0.7em">置き換え</td><td style="padding:0.45em 0.7em">置き換え</td><td style="padding:0.45em 0.7em">そのまま使う</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">作業の量</b></td><td style="padding:0.45em 0.7em">済み</td><td style="padding:0.45em 0.7em">大</td><td style="padding:0.45em 0.7em">中</td><td style="padding:0.45em 0.7em">小</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">11 / 12</p>
+</section>
+<section id="next" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">11 · おすすめと確認したいこと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">おすすめは D。使ってみて足りなければ B に寄せる</h2>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">D をすすめる理由</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">固さは<b style="color:#1B1F2A">書くときの決まり</b>から来ているので、DB を変えずにゆるめられる。分類を AI に任せれば、オーナーは書くことと答えることだけ。D の本文とタイトルは、後で B のメモにそのまま移せる</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">1. どの案で進めるか</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">B・C・D のどれか（おすすめ D。PR #15 のマージ後に小さな変更として入れる）</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;padding:20px 28px"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">2. D の中身</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">D1〜D5 のうち、要らないもの・足したいものはあるか</div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">12 / 12</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

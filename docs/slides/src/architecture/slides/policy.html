@@ -1,0 +1,25 @@
+<section id="policy" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · 設計方針</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">入口は4つ、ロジックは1つ</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:34px;font-weight:700;color:#5B58D6">内部は Linear ライク</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">issues 1テーブル + 自己参照 parent_id + 種別 + カテゴリ付きステータス。Jira の概念はドメインに持ち込まない</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:34px;font-weight:700;color:#5B58D6">入口は4つ、ロジックは1つ</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">Web UI 用 API・Jira 互換 API・MCP(HTTP)・MCP(stdio) はすべて同じサービス層を呼ぶ</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:34px;font-weight:700;color:#5B58D6">単一バイナリ</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">React のビルド成果物を Go の embed で同梱。taskapp serve だけで UI・API・MCP が立ち上がる</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:34px;font-weight:700;color:#5B58D6">ローカルファースト</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">SQLite (WAL)。既定は 127.0.0.1 のみ。--host で開けば、ほかの端末はパスワード・トークンで</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 15</p>
+</section>

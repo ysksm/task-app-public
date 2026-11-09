@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>task-app スライド一覧</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+  :root { --bg: #F5F4EF; --ink: #1B1F2A; --sub: #4A5160; --card: #FCFBF8; --line: #DDDBD3; --accent: #5B58D6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1B1F2A; --ink: #F5F4EF; --sub: #B9BED0; --card: #2A3040; --line: #3A4152; --accent: #A9A7FF; }
+  }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Noto Sans JP', sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  p { color: var(--sub); margin: 0 0 32px; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  a { display: flex; justify-content: space-between; gap: 16px; padding: 20px 24px; background: var(--card);
+       border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; }
+  a:hover { border-color: var(--accent); }
+  .n { color: var(--sub); white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+<h1>task-app スライド</h1>
+<p>AIエージェントと人間のタスク管理アプリの設計資料。← → / Space で移動、P で印刷・PDF 出力。</p>
+<ul>
+<li><a href="requirements.html"><span class="t">タスク管理アプリ 要求仕様</span><span class="n">18 枚</span></a></li>
+<li><a href="architecture.html"><span class="t">アーキテクチャ設計</span><span class="n">15 枚</span></a></li>
+<li><a href="screens.html"><span class="t">画面設計</span><span class="n">20 枚</span></a></li>
+<li><a href="er.html"><span class="t">ER 図・データモデル</span><span class="n">15 枚</span></a></li>
+<li><a href="plan.html"><span class="t">実装計画</span><span class="n">14 枚</span></a></li>
+<li><a href="devcycle.html"><span class="t">アプリ開発アプリ構想（提案）</span><span class="n">15 枚</span></a></li>
+<li><a href="guide.html"><span class="t">利用ガイド</span><span class="n">10 枚</span></a></li>
+<li><a href="loose.html"><span class="t">要求の層: 構造をゆるくする案</span><span class="n">12 枚</span></a></li>
+<li><a href="m1.html"><span class="t">M1 実装: UI と DB の変更点</span><span class="n">12 枚</span></a></li>
+<li><a href="req-d.html"><span class="t">案 D 実装: M1 をゆるく使う</span><span class="n">11 枚</span></a></li>
+<li><a href="req-draft.html"><span class="t">下書きで試して、まとめて取り込む</span><span class="n">11 枚</span></a></li>
+<li><a href="req-e.html"><span class="t">案 E 実装: A と D をプロジェクトで選ぶ</span><span class="n">12 枚</span></a></li>
+<li><a href="storymap.html"><span class="t">マイタスクの棚卸しと M1 設計</span><span class="n">15 枚</span></a></li>
+<li><a href="testing.html"><span class="t">テストの使い方</span><span class="n">6 枚</span></a></li>
+</ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<section id="stack" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 技術スタック</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">Go のバックエンドと React の SPA</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+<p style="font-size:30px;line-height:1.6;color:#1B1F2A;font-weight:700">バックエンド</p>
+<table style="font-size:26px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:36%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">層</th><th style="width:64%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">採用技術</th></tr>
+<tr><td>言語</td><td>Go 1.26</td></tr>
+<tr style="background:#ECEBE4"><td>HTTP</td><td>net/http + chi</td></tr>
+<tr><td>DB</td><td>SQLite (modernc.org/sqlite)</td></tr>
+<tr style="background:#ECEBE4"><td>SQL</td><td>database/sql + 手書き SQL</td></tr>
+<tr><td>マイグレーション</td><td>goose（素の SQL）</td></tr>
+<tr style="background:#ECEBE4"><td>MCP</td><td>公式 go-sdk</td></tr>
+<tr><td>リアルタイム</td><td>Server-Sent Events</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+<p style="font-size:30px;line-height:1.6;color:#1B1F2A;font-weight:700">フロントエンド・テスト</p>
+<table style="font-size:26px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:36%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">層</th><th style="width:64%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">採用技術</th></tr>
+<tr><td>言語</td><td>TypeScript + React 19 + Vite</td></tr>
+<tr style="background:#ECEBE4"><td>ルーティング</td><td>TanStack Router / Query</td></tr>
+<tr><td>UI 部品</td><td>Radix UI + Tailwind + cmdk</td></tr>
+<tr style="background:#ECEBE4"><td>一覧・ツリー</td><td>TanStack Table + virtual</td></tr>
+<tr><td>ボード</td><td>dnd-kit</td></tr>
+<tr style="background:#ECEBE4"><td>マインドマップ</td><td>React Flow（配置は自前のツリーレイアウト）</td></tr>
+<tr><td>テスト</td><td>Vitest（API・UI）+ Playwright</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 15</p>
+<aside>SQL はコード生成や ORM を使わず手書き。Rust へ置き換える場合も SQL をそのまま移植できる。</aside>
+</section>

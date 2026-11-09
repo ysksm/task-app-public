@@ -1,0 +1,25 @@
+<section id="notes" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">11 · 設計メモ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">採番・ID・並び順のルール</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">階層</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">親子規則と循環禁止はサービス層で検証。親と子の project_id は一致させる</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">キー採番</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">作成時、同じトランザクションで projects.next_issue_number を UPDATE … RETURNING して number と key を決める。キー変更は当面不可</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">jira_id</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">Jira API は数値の id を返すため、ULID とは別に連番の数値 ID を持つ（projects・issues・comments・attachments）</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px;">
+<h3 style="font-size:30px;font-weight:700;color:#5B58D6">sort_order</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">兄弟の並び。ドラッグ時は前後の値の中間値を入れる（fractional index）</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">13 / 15</p>
+</section>

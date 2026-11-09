@@ -1,0 +1,42 @@
+<section id="t-acceptance" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">08 · テーブル ⑦ 受入検査</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">基準・判定・基準ごとの結果</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_criteria</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues（story / feature）</td></tr>
+<tr><td><span style="color:#5B58D6">position</span></td><td>並び順</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">description</span></td><td>基準の文</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_review_items</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">review_id</span></td><td>PK, → acceptance_reviews</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">criterion_id</span></td><td>PK, → acceptance_criteria</td></tr>
+<tr><td><span style="color:#5B58D6">result</span></td><td>ok | ng | na</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">note</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">acceptance_reviews</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">round</span></td><td>1, 2, …</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">reviewer_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">verdict</span></td><td>accepted | rejected</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">summary</span></td><td>総評 / 差し戻し理由</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">9 / 15</p>
+</section>

@@ -1,0 +1,36 @@
+<section id="api" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · 内部 API /api/v1</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">UI 用の API は OpenAPI で定義する</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:23px;color:#1B1F2A;font-family:'JetBrains Mono', 'Courier New', monospace">
+<tr style="background:#1B1F2A"><th style="width:34%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">メソッド</th><th style="width:66%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">パス</th></tr>
+<tr><td>GET</td><td>/me</td></tr>
+<tr style="background:#ECEBE4"><td>GET POST PATCH</td><td>/projects · /projects/{key}</td></tr>
+<tr><td>GET</td><td>/issues?filter=…&amp;view=list|tree</td></tr>
+<tr style="background:#ECEBE4"><td>POST</td><td>/issues</td></tr>
+<tr><td>GET PATCH DELETE</td><td>/issues/{key}</td></tr>
+<tr style="background:#ECEBE4"><td>POST</td><td>/issues/{key}/move</td></tr>
+<tr><td>GET</td><td>/issues/{key}/tree · /activity</td></tr>
+<tr style="background:#ECEBE4"><td>GET POST</td><td>/issues/{key}/comments · /checkpoints</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:23px;color:#1B1F2A;font-family:'JetBrains Mono', 'Courier New', monospace">
+<tr style="background:#1B1F2A"><th style="width:34%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">メソッド</th><th style="width:66%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.45em 0.6em">パス</th></tr>
+<tr><td>GET PUT</td><td>/issues/{key}/acceptance-criteria</td></tr>
+<tr style="background:#ECEBE4"><td>POST</td><td>/issues/{key}/acceptance-reviews</td></tr>
+<tr><td>POST</td><td>/issues/{key}/answer</td></tr>
+<tr style="background:#ECEBE4"><td>GET</td><td>/inbox/qa · /inbox/acceptance · /my/issues</td></tr>
+<tr><td>GET</td><td>/agents/activity</td></tr>
+<tr style="background:#ECEBE4"><td>GET POST …</td><td>/views</td></tr>
+<tr><td>GET POST DELETE</td><td>/tokens</td></tr>
+<tr style="background:#ECEBE4"><td>GET</td><td>/events（SSE）</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">11 / 15</p>
+<aside>api/openapi.yaml を契約とし、Web UI と API テストの TypeScript 型はここから生成する。</aside>
+</section>

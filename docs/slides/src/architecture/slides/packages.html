@@ -1,0 +1,22 @@
+<section id="packages" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · パッケージ構成</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">依存の向きは domain へ</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch;">
+<div style="flex:3;display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:23px;line-height:1.5;color:#E6E8EF">task-app/<br>├──&#160;cmd/taskapp/&#160;&#160;&#160;&#160;&#160;&#160;serve&#160;/&#160;mcp&#160;/&#160;migrate&#160;/&#160;token&#160;/&#160;seed<br>├──&#160;internal/<br>│&#160;&#160;&#160;├──&#160;domain/&#160;&#160;&#160;&#160;&#160;&#160;&#160;エンティティ・階層規則・Filter&#160;AST<br>│&#160;&#160;&#160;├──&#160;store/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Repository・migrations・filtersql<br>│&#160;&#160;&#160;├──&#160;service/&#160;&#160;&#160;&#160;&#160;&#160;ユースケース・履歴・イベント<br>│&#160;&#160;&#160;├──&#160;auth/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;トークン・ミドルウェア<br>│&#160;&#160;&#160;├──&#160;httpapi/&#160;&#160;&#160;&#160;&#160;&#160;/api/v1&#160;+&#160;SSE<br>│&#160;&#160;&#160;├──&#160;jira/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;互換レイヤー・jql/<br>│&#160;&#160;&#160;├──&#160;mcpserver/&#160;&#160;&#160;&#160;ツール・リソース・プロンプト<br>│&#160;&#160;&#160;└──&#160;events/&#160;&#160;&#160;&#160;&#160;&#160;&#160;プロセス内&#160;pub/sub<br>├──&#160;web/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;React&#160;SPA<br>├──&#160;api/openapi.yaml&#160;&#160;内部&#160;API&#160;の契約<br>└──&#160;apitest/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;実装非依存の&#160;API&#160;テスト</p>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:14px;align-items:stretch">
+<p style="font-size:26px;color:#F5F4EF;background:#1B1F2A;border-radius:12px;padding:16px 20px;text-align:center">httpapi · jira · mcpserver</p>
+<div style="display:flex;justify-content:center"><x-shape kind="arrow-down" style="background:#9AA0B0;width:28px;height:40px"></x-shape></div>
+<p style="font-size:26px;color:#F5F4EF;background:#5B58D6;border-radius:12px;padding:16px 20px;text-align:center">service</p>
+<div style="display:flex;justify-content:center"><x-shape kind="arrow-down" style="background:#9AA0B0;width:28px;height:40px"></x-shape></div>
+<p style="font-size:26px;color:#F5F4EF;background:#3A3F55;border-radius:12px;padding:16px 20px;text-align:center">domain（外部依存なし）</p>
+<div style="display:flex;justify-content:center"><x-shape kind="arrow-up" style="background:#9AA0B0;width:28px;height:40px"></x-shape></div>
+<p style="font-size:26px;color:#F5F4EF;background:#2F7D8C;border-radius:12px;padding:16px 20px;text-align:center">store</p>
+<p style="font-size:24px;line-height:1.6;color:#4A5160;">依存は内側の domain へ向かう。store は domain のインターフェースを実装する</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 15</p>
+</section>

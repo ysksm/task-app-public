@@ -1,0 +1,45 @@
+<section id="hierarchy" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · チケット階層</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">エピックからタスクまで、親子でつなぐ</h2>
+</div>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#6A4FC9;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">エピック</p>
+<p style="font-size:24px;color:#E4DEFA">目的・テーマ</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#2D63B8;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">ストーリー</p>
+<p style="font-size:24px;color:#DCE7F8">利用者の要求</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#2B7A4B;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">フィーチャー</p>
+<p style="font-size:24px;color:#DAF0E2">機能単位</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#4A5160;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">タスク</p>
+<p style="font-size:24px;color:#E2E4EA">実作業</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FCFBF8;border:3px dashed #4A5160;border-radius:16px;padding:29px 13px">
+<p style="font-size:34px;font-weight:700;color:#4A5160">タスク …</p>
+<p style="font-size:24px;color:#4A5160">深さ無制限</p>
+</div>
+</div>
+<div style="display:flex;gap:48px">
+<ul style="flex:1;font-size:30px;line-height:1.7;color:#4A5160">
+<li>すべてのチケットは1つのプロジェクトに所属し、<span style="color:#1B1F2A">APP-123</span> 形式で採番</li>
+<li>子は親と同じプロジェクト。循環は禁止</li>
+<li>途中を飛ばす親子（エピック直下のタスク等）は設定で許可</li>
+</ul>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-left:8px solid #B85A1E;border-radius:12px;padding:32px 40px">
+<h3 style="font-size:34px;font-weight:700;color:#8F4415">QA チケット</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">エージェントの確認事項。どの階層のチケットにも子としてぶら下げられる（QA の下には置けない）</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 18</p>
+<aside>内部では1つの issues テーブルに parent_id を持たせ、種別ごとの親子規則はアプリ側で検証する。</aside>
+</section>

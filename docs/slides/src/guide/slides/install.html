@@ -1,0 +1,23 @@
+<section id="install" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">01 · インストール</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">単一バイナリを置いて起動するだけ</h2>
+</div>
+<div style="display:flex;gap:36px">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:24px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">$ taskapp serve
+# → http://127.0.0.1:7700
+#   この PC のブラウザはログインなし
+#   既定は 127.0.0.1 だけで待ち受け
+
+# デモデータで試す
+$ taskapp seed --preset demo --data /tmp/demo
+$ taskapp serve --data /tmp/demo</pre>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">配布物</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">macOS / Linux / Windows（amd64・arm64）のアーカイブ。Web UI も中に入っている</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">データ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">~/.taskapp/taskapp.db（SQLite）。--data か TASKAPP_DATA で変更</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 10</p>
+</section>

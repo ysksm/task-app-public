@@ -1,0 +1,37 @@
+<section id="t-checkpoints" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · テーブル ⑤ checkpoints</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">エージェントの判断を構造化して残す</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">checkpoints（1/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">author_id</span></td><td>→ users（通常 agent）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">seq</span></td><td>イシュー内の連番</td></tr>
+<tr><td><span style="color:#5B58D6">summary</span></td><td>何をしたか</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">decision</span></td><td>何を判断したか</td></tr>
+<tr><td><span style="color:#5B58D6">rationale</span></td><td>判断基準・理由（必須）</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#5B58D6"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">checkpoints（2/2）</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">alternatives</span></td><td>検討した代替案（JSON 配列）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">confidence</span></td><td>high | medium | low</td></tr>
+<tr><td><span style="color:#5B58D6">progress</span></td><td>0〜100</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">next_steps</span></td><td>次にすること</td></tr>
+<tr><td><span style="color:#5B58D6">artifacts</span></td><td>JSON: branch, commits, PR, files</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>mcp | jira | api</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:24px;background:#1B1F2A;border-radius:16px;padding:32px 44px">
+<x-icon name="Lightbulb" style="color:#A9A7FF;width:44px;height:44px"></x-icon>
+<p style="font-size:28px;font-weight:500;color:#F5F4EF;line-height:1.5">rationale（判断基準）がこのアプリの中心的な価値。MCP の record_checkpoint でも必須パラメータにする</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">7 / 15</p>
+</section>

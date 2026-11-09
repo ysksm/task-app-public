@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アプリ開発アプリ構想（提案）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#5B58D6"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">PROPOSAL · DEV CYCLE</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:88px;font-weight:900;line-height:1.2;color:#F5F4EF">タスク管理から<br>アプリ開発アプリへ</h1>
+<p style="font-size:38px;color:#B9BED0;line-height:1.5">ペルソナ・ジョブ・ストーリーマップ・受け入れ条件・設計・タスク・テストを<br>1 本の糸でつなぎ、開発サイクルを回す仕組みの提案</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">AIエージェントと人間のタスク管理アプリ</p>
+<p style="font-size:28px;color:#B9BED0">2026-11-01 · 提案（未決定）</p>
+</div>
+</section>
+<section id="problem" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · きっかけ</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">マイタスクの使い方が、作った本人にもわからなくなってきた</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">起きていること</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ティア・保存ビュー・リスト/ツリー・ボード・マップ・QA受信箱…と機能が増えるたびに、<br>「どれをいつ使うのか」の分担があいまいになっている</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">原因</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">要求仕様（docs/01-requirements.md）は <b style="color:#1B1F2A">「何ができるか」</b>で整理されている。<br><b style="color:#1B1F2A">「誰が・どんな場面で・何のために」</b>が書かれていないので、機能の置き場所と役割を判断する軸がない</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">やりたいこと</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">アプリを作るときにユースケースを考え、それを満たしていく進め方を開発に組み込みたい。<br>さらに、それを支える仕組みをアプリ自身に持たせたい</div></div>
+</div>
+<div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:28px 36px;font-size:28px;line-height:1.6">
+この資料の提案：タスクを管理するアプリから一段上がり、<b style="color:#A9A7FF">要求から実装・検証までを 1 本の糸でつなぎ、開発サイクルを回すアプリ</b>にする
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">2 / 15</p>
+</section>
+<section id="methods" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · 世の中の手法</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">要求を扱う手法は、それぞれ別の問いに答えている</h2>
+</div>
+<table style="font-size:23px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:19%;color:#F5F4EF;padding:0.45em 0.7em">手法</th><th style="width:15%;color:#F5F4EF;padding:0.45em 0.7em">何を決めるか</th><th style="width:35%;color:#F5F4EF;padding:0.45em 0.7em">特徴</th><th style="width:31%;color:#F5F4EF;padding:0.45em 0.7em">このアプリとの相性</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">ペルソナ</b></td><td style="padding:0.45em 0.7em">誰が使うか</td><td style="padding:0.45em 0.7em">利用者像を 2〜3 人つくり、迷ったら「この人なら使うか？」で判断する</td><td style="padding:0.45em 0.7em">◎ 利用者は実在（本人と AI エージェント）。架空にせず実在の役割で書ける</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">ジョブ理論（JTBD）</b></td><td style="padding:0.45em 0.7em">なぜ使うか</td><td style="padding:0.45em 0.7em">「〇〇な状況で、〇〇したい。そうすれば〇〇できる」。機能ではなく状況から考える</td><td style="padding:0.45em 0.7em">◎ 「朝、今日やることを決めたい」のような場面が書ける</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">ユースケース（Cockburn）</b></td><td style="padding:0.45em 0.7em">目的までの手順</td><td style="padding:0.45em 0.7em">基本の流れと例外の流れを手順として書く</td><td style="padding:0.45em 0.7em">○ 厳密だが重い。API 仕様と相性がよい</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">ストーリーマッピング（Patton）</b></td><td style="padding:0.45em 0.7em">使う流れ全体と、どこまで作るか</td><td style="padding:0.45em 0.7em">横に利用の流れ（活動 → 手順）、その下にストーリー。横線でリリース単位に切る</td><td style="padding:0.45em 0.7em">◎ 「使い方」の全体像そのもの。今回の悩みに一番効く</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">インパクトマッピング</b></td><td style="padding:0.45em 0.7em">機能は本当に必要か</td><td style="padding:0.45em 0.7em">ゴール → 誰が → 行動がどう変わるか → 機能、の木</td><td style="padding:0.45em 0.7em">○ 機能を減らす判断に使える</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">BDD / 例示マッピング</b></td><td style="padding:0.45em 0.7em">完成の条件</td><td style="padding:0.45em 0.7em">受け入れ条件を Given/When/Then で書き、テストにつなげる</td><td style="padding:0.45em 0.7em">◎ 既存の e2e・apitest にそのままつながる</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">トレーサビリティ</b></td><td style="padding:0.45em 0.7em">要求とテストの対応</td><td style="padding:0.45em 0.7em">要求 ID → 画面 → テストの対応表</td><td style="padding:0.45em 0.7em">○ 要求 ID はすでにある。拡張するだけ</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">3 / 15</p>
+</section>
+<section id="core" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 中心となる考え方</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">要求は「生き続ける仕様」、タスクは「使い切るもの」</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #5B58D6"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">要求（L0〜L6）</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ペルソナ・ジョブ・活動・手順・ストーリー・受け入れ条件。<br><b style="color:#1B1F2A">完了で閉じない。</b>版を重ねて育つ。<br>「この機能は何のためにあるか」をアプリの中に残す役目</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;border-top:8px solid #2F7D8C"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">タスク（L8）</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">要求を満たすために一時的に発生し、<b style="color:#1B1F2A">終われば閉じる。</b><br>人か AI エージェントが担当する。<br>今のタスクアプリが扱っているのはこちらだけ</div></div>
+</div>
+<div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:28px 36px;font-size:28px;line-height:1.6">
+今のアプリが使いにくくなったのは「使い切る側」しか持っていないから。<br>要求の側を足し、両者を<b style="color:#A9A7FF">つなぐ</b>ことで、機能の存在理由と完成度が見えるようにする
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">4 / 15</p>
+</section>
+<section id="layers" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · 粒度の階層</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">なぜ → 何を → どう → 確認、の 11 段で上から下へ落とす</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:24px"><div style="width:120px;flex:none;background:#8A5BB8;color:#F5F4EF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700">なぜ</div><div style="flex:1"><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#8A5BB8;width:64px;flex:none">L0</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">プロダクト</span><span style="font-size:23px;color:#4A5160">ビジョン・ゴール・指標</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#8A5BB8;width:64px;flex:none">L1</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">ペルソナ</span><span style="font-size:23px;color:#4A5160">誰が使うか</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#8A5BB8;width:64px;flex:none">L2</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">ジョブ</span><span style="font-size:23px;color:#4A5160">どんな状況で何をしたいか（JTBD）</span></div></div></div>
+<div style="display:flex;gap:24px"><div style="width:120px;flex:none;background:#5B58D6;color:#F5F4EF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700">何を</div><div style="flex:1"><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#5B58D6;width:64px;flex:none">L3</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">活動</span><span style="font-size:23px;color:#4A5160">ストーリーマップの背骨（例：朝、今日を決める）</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#5B58D6;width:64px;flex:none">L4</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">手順</span><span style="font-size:23px;color:#4A5160">活動を分けたもの（例：注力だけを見る）</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#5B58D6;width:64px;flex:none">L5</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">ストーリー</span><span style="font-size:23px;color:#4A5160">手順を楽にする機能の単位 ＋ リリースへの割り当て</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#5B58D6;width:64px;flex:none">L6</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">受け入れ条件</span><span style="font-size:23px;color:#4A5160">Given/When/Then。仕様の最小単位</span></div></div></div>
+<div style="display:flex;gap:24px"><div style="width:120px;flex:none;background:#2F7D8C;color:#F5F4EF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700">どう</div><div style="flex:1"><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#2F7D8C;width:64px;flex:none">L7</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">設計要素</span><span style="font-size:23px;color:#4A5160">画面・API・データ（例：S14、PATCH /projects、projects.tier）</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#2F7D8C;width:64px;flex:none">L8</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">開発タスク</span><span style="font-size:23px;color:#4A5160">実装・テスト作成。人か AI エージェントに割り当てる（既存の課題）</span></div></div></div>
+<div style="display:flex;gap:24px"><div style="width:120px;flex:none;background:#B85A1E;color:#F5F4EF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700">確認</div><div style="flex:1"><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#B85A1E;width:64px;flex:none">L9</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">検証</span><span style="font-size:23px;color:#4A5160">テスト（e2e / apitest）とその実行結果</span></div><div style="display:flex;gap:20px;align-items:baseline;padding:10px 0;border-bottom:1px solid #DDDBD3"><span style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;color:#B85A1E;width:64px;flex:none">L10</span><span style="font-size:25px;font-weight:700;width:230px;flex:none">フィードバック</span><span style="font-size:23px;color:#4A5160">使ってみての気づき → L2〜L5 に戻る</span></div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">5 / 15</p>
+</section>
+<section id="links" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · つなぎ方</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">すべての項目を ID でつなぎ、どこからでも上下にたどれる</h2>
+</div>
+<div style="position:relative;height:520px">
+<div style="position:absolute;left:0;right:0;top:40px;display:flex;align-items:center"><div style="width:170px;flex:none;background:#FCFBF8;border:3px solid #8A5BB8;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">ペルソナ</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>1:N</div><div style="width:150px;flex:none;background:#FCFBF8;border:3px solid #8A5BB8;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">ジョブ</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>N:N</div><div style="width:130px;flex:none;background:#FCFBF8;border:3px solid #5B58D6;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">活動</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>1:N</div><div style="width:130px;flex:none;background:#FCFBF8;border:3px solid #5B58D6;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">手順</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>N:N</div><div style="width:190px;flex:none;background:#FCFBF8;border:3px solid #5B58D6;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">ストーリー</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>1:N</div><div style="width:220px;flex:none;background:#FCFBF8;border:3px solid #5B58D6;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">受け入れ条件</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-right" style="width:52px;height:28px;background:#4A5160"></x-shape>N:N</div><div style="width:140px;flex:none;background:#FCFBF8;border:3px solid #B85A1E;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">テスト</div></div>
+<div style="position:absolute;left:1012px;top:150px;display:flex;flex-direction:column;align-items:center;gap:8px"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-down" style="width:28px;height:44px;background:#4A5160"></x-shape>1:N</div><div style="width:200px;flex:none;background:#FCFBF8;border:3px solid #2F7D8C;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">開発タスク<br><span style='font-size:20px;font-weight:400'>既存の課題</span></div></div>
+<div style="position:absolute;left:1270px;top:150px;display:flex;flex-direction:column;align-items:center;gap:8px"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;color:#4A5160"><x-shape kind="arrow-down" style="width:28px;height:44px;background:#4A5160"></x-shape>N:N</div><div style="width:260px;flex:none;background:#FCFBF8;border:3px solid #2F7D8C;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">設計要素<br><span style='font-size:20px;font-weight:400'>画面 / API / データ</span></div></div>
+<div style="position:absolute;left:0;top:420px;display:flex;align-items:center;gap:20px"><div style="width:220px;flex:none;background:#FCFBF8;border:3px solid #B85A1E;border-radius:14px;padding:18px 8px;text-align:center;font-size:26px;font-weight:700">フィードバック</div><x-shape kind="arrow-right" style="width:80px;height:28px;background:#B85A1E"></x-shape><span style="font-size:24px;color:#4A5160">手順・ストーリーに戻して次のサイクルへ</span></div>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">上からたどる</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">このペルソナのジョブは、どのストーリーで満たされ、どのテストで保証されているか</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">下からたどる</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">このテスト（画面・API）は、誰のどの場面のためにあるのか。答えられなければ孤立</div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">6 / 15</p>
+</section>
+<section id="example" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 例：マイタスクに当てはめる</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">ペルソナ P1（オーナー）のストーリーマップ</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">P1 オーナー（あなた）</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">複数のプロジェクトを並行して進め、作業を AI に任せる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">P2 AI エージェント</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">MCP で作業を拾い、チェックポイントを記録し、迷ったら質問する</div></div>
+</div>
+<div style="display:flex;gap:20px"><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div style="background:#5B58D6;color:#F5F4EF;border-radius:12px;padding:16px;font-size:26px;font-weight:700;text-align:center">朝：今日を決める</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">注力だけ見る</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">期限の近いものを見る</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div style="background:#5B58D6;color:#F5F4EF;border-radius:12px;padding:16px;font-size:26px;font-weight:700;text-align:center">日中：進める</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">状態を変える</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">メモを残す</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div style="background:#5B58D6;color:#F5F4EF;border-radius:12px;padding:16px;font-size:26px;font-weight:700;text-align:center">AI に任せる</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">起票して割り当てる</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">粒度を決める</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div style="background:#5B58D6;color:#F5F4EF;border-radius:12px;padding:16px;font-size:26px;font-weight:700;text-align:center">AI に答える</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">QA受信箱を見る</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">Yes/No で答える</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px"><div style="background:#5B58D6;color:#F5F4EF;border-radius:12px;padding:16px;font-size:26px;font-weight:700;text-align:center">振り返る</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">終わったものを見る</div><div style="background:#FFF6C9;border:1px solid #E6D88A;border-radius:10px;padding:14px;font-size:24px;text-align:center">その他を整理する</div></div></div>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">並べると「リスト/ツリーの切り替えは、どの手順で使うのか」に答えられるかがはっきりする。<br>答えられない機能は、削るか、隠すか、手順を足すかを決める。<span style="color:#7A8091">（内容は例。これから一緒に決める）</span></p>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">7 / 15</p>
+</section>
+<section id="cycle" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">07 · 開発サイクル</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">6 つの段階を回し、学びを次の発見に戻す</h2>
+</div>
+<div style="display:flex;gap:12px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">① 発見</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">ペルソナ・ジョブ・フィードバックを整理</p></div><x-shape kind="arrow-right" style="width:34px;height:26px;background:#4A5160;align-self:center"></x-shape><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">② 定義</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">ストーリーマップに手順とストーリーを置く</p></div><x-shape kind="arrow-right" style="width:34px;height:26px;background:#4A5160;align-self:center"></x-shape><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">③ 分解</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">受け入れ条件 → 設計要素 → タスク</p></div><x-shape kind="arrow-right" style="width:34px;height:26px;background:#4A5160;align-self:center"></x-shape><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">④ 作る</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">AI エージェント中心に実装</p></div><x-shape kind="arrow-right" style="width:34px;height:26px;background:#4A5160;align-self:center"></x-shape><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">⑤ 確かめる</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">CI の結果を取り込み、人が受け入れ確認</p></div><x-shape kind="arrow-right" style="width:34px;height:26px;background:#4A5160;align-self:center"></x-shape><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-top:8px solid #5B58D6;border-radius:16px;padding:24px"><h3 style="font-size:32px;color:#5B58D6">⑥ 学ぶ</h3><p style="font-size:23px;line-height:1.55;color:#4A5160">使った気づきをフィードバックに</p></div></div>
+<div style="display:flex;align-items:center;gap:20px;font-size:26px;color:#B85A1E;padding-left:8px">
+<x-shape kind="arrow-left" style="width:44px;height:30px;background:#B85A1E"></x-shape><div style="flex:1;height:8px;margin-left:-6px;background:#B85A1E;border-radius:4px"></div><span style="white-space:nowrap">⑥ から ① へ</span></div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">段階ごとに関門を置く</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">次へ進む条件をシステムが自動で判定する（次のページ）。人が毎回チェックリストを見なくてよい</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">どこが抜けているかが常に見える</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">着手可能でないストーリー、テストのない条件、つながっていない機能が一覧になる</div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">8 / 15</p>
+</section>
+<section id="gates" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">08 · 関門</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">次へ進む条件を、つながりの有無から自動で判定する</h2>
+</div>
+<table style="font-size:25px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:14%;color:#F5F4EF;padding:0.45em 0.7em">段階</th><th style="width:43%;color:#F5F4EF;padding:0.45em 0.7em">やること</th><th style="width:43%;color:#F5F4EF;padding:0.45em 0.7em">次へ進む条件</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">① 発見</b></td><td style="padding:0.45em 0.7em">ペルソナ・ジョブ・フィードバックを整理する</td><td style="padding:0.45em 0.7em">ジョブが 1 つ以上の活動に結びついている</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">② 定義</b></td><td style="padding:0.45em 0.7em">ストーリーマップに手順とストーリーを置く</td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">着手可能</b>：手順につながっている／受け入れ条件が 1 つ以上／設計要素が特定済み</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">③ 分解</b></td><td style="padding:0.45em 0.7em">受け入れ条件 → 設計要素 → 開発タスクに落とす</td><td style="padding:0.45em 0.7em">すべての受け入れ条件に担当タスクと予定テストがある</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">④ 作る</b></td><td style="padding:0.45em 0.7em">実装する（AI エージェント中心。チェックポイントと質問は既存の仕組み）</td><td style="padding:0.45em 0.7em">タスクがすべて完了</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">⑤ 確かめる</b></td><td style="padding:0.45em 0.7em">CI のテスト結果を取り込み、人が受け入れ確認</td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">完了</b>：全条件のテストが成功し、ガイドも更新済み</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">⑥ 学ぶ</b></td><td style="padding:0.45em 0.7em">使ってみての気づきをフィードバックとして登録</td><td style="padding:0.45em 0.7em">影響するストーリーが特定され、① に戻る</td></tr></table>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">9 / 15</p>
+</section>
+<section id="automation" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · 自動でできるようにしたいこと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">つながっているから、状態の集計と書類づくりは機械に任せられる</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px;flex:1">
+<div style="display:flex;gap:24px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">カバレッジ付きストーリーマップ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">緑＝検証済み、黄＝実装中、灰＝未定義、赤＝テスト失敗。マップを見るだけで完成度がわかる</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">孤立チェック</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">どの手順にもつながらない機能・画面・テストを一覧に。「何のための機能か」を検出する</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">使い方ガイドの自動生成</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">活動を章、手順を節として書き出す。docs/06-guide.md を置き換える</div></div></div>
+<div style="display:flex;gap:24px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">トレース表とスライドの生成</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">要求 → 設計 → テストの対応表と設計スライド。今の手作業の docs/ を置き換える</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">テストとの結びつけ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">テスト名にタグ（例 @AC-142）。CI の Playwright / vitest のレポートを取り込み、条件ごとに成否を反映</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">コードとの結びつけ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">コミットや PR の本文に ID を書くと自動で紐づく</div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">10 / 15</p>
+</section>
+<section id="ai" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · AI エージェントの役割</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">下書きは AI、決めるのは人</h2>
+</div>
+<table style="font-size:26px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:50%;color:#F5F4EF;padding:0.45em 0.7em">作業</th><th style="width:18%;color:#F5F4EF;padding:0.45em 0.7em">AI</th><th style="width:32%;color:#F5F4EF;padding:0.45em 0.7em">人</th></tr><tr><td style="padding:0.45em 0.7em">ストーリーから受け入れ条件を下書きする</td><td style="padding:0.45em 0.7em">○ 下書き</td><td style="padding:0.45em 0.7em">承認する</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em">受け入れ条件から設計要素とタスクに分解する</td><td style="padding:0.45em 0.7em">○ 下書き</td><td style="padding:0.45em 0.7em">承認する</td></tr><tr><td style="padding:0.45em 0.7em">実装とテストを書く</td><td style="padding:0.45em 0.7em">○ 実施</td><td style="padding:0.45em 0.7em">必要に応じて質問に答える</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em">フィードバックから影響するストーリーを推定する</td><td style="padding:0.45em 0.7em">○ 推定</td><td style="padding:0.45em 0.7em">優先度を決める</td></tr><tr><td style="padding:0.45em 0.7em">ゴール・ペルソナ・リリースの線引き</td><td style="padding:0.45em 0.7em">提案のみ</td><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">決める</b></td></tr></table><div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:28px 36px;font-size:27px;line-height:1.6">
+AI は MCP で上の階層まで読めるので、<b style="color:#A9A7FF">「なぜこれを作るのか」を知ったうえで作業できる</b>。<br>判断の質が上がり、質問やチェックポイントも要求 ID に結びつく
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">11 / 15</p>
+</section>
+<section id="screens" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">11 · 画面構成のイメージ</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">ストーリーマップを中心に、上下の階層へ移る</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px;flex:1">
+<div style="display:flex;gap:24px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">① プロダクトのホーム</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ゴールと指標、サイクルの現在地、関門で止まっている項目</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">② ペルソナとジョブ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">誰が、どんな状況で何をしたいか</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">③ ストーリーマップ</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">メイン画面。横に活動と手順、縦にリリース。カバレッジの色付き</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">④ ストーリー詳細</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">ペルソナから手順・条件・設計・タスク・テストまでを 1 画面で縦に見せる</div></div></div>
+<div style="display:flex;gap:24px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">⑤ 健全性</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">孤立・抜け・失敗テストの一覧</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">⑥ フィードバック受信箱</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">使って気づいたことを登録し、ストーリーに振り分ける</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">⑦ 課題・ボード・QA受信箱</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">既存。L8 の開発タスクを扱う場所としてそのまま使う</div></div></div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">12 / 15</p>
+</section>
+<section id="build" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">12 · 作り方</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">今のタスクアプリを土台に、要求の層を上に足す</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">そのまま使うもの</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">課題・MCP・質問・チェックポイント・受け入れ依頼。<br>L8（開発タスク）と L9（検証）の受け皿になる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">新しく足すもの</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">要求（L0〜L6）と設計要素（L7）は<b style="color:#1B1F2A">課題タイプとしてではなく別のテーブル</b>で持つ。<br>完了で閉じない・版を重ねる、というライフサイクルが課題と違うため</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">今までどおり</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">API を先に定義し、apitest で振る舞いを固定する。<br>将来の Rust への書き直しでも同じテストが使える</div></div>
+</div>
+<div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:28px 36px;font-size:27px;line-height:1.6">
+別アプリにしない理由：開発タスク・AI エージェント接続・質問の仕組みをゼロから作り直すことになり、<br>しかも要求と開発タスクのつなぎ目が 2 つのアプリにまたがってしまう
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">13 / 15</p>
+</section>
+<section id="milestones" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 段階的な進め方</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">まずこのアプリ自身の要求で試す</h2>
+</div>
+<table style="font-size:26px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:10%;color:#F5F4EF;padding:0.45em 0.7em">段階</th><th style="width:55%;color:#F5F4EF;padding:0.45em 0.7em">内容</th><th style="width:35%;color:#F5F4EF;padding:0.45em 0.7em">試す対象</th></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">M1</b></td><td style="padding:0.45em 0.7em">要求モデル（L0〜L6）、ストーリーマップ表示、ストーリーとタスクの紐付け</td><td style="padding:0.45em 0.7em">このアプリ自身（TAPP）の要求を登録する。まずマイタスク周り</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">M2</b></td><td style="padding:0.45em 0.7em">受け入れ条件とテストタグの紐付け、CI 結果の取り込み、カバレッジ色</td><td style="padding:0.45em 0.7em">既存の e2e と apitest にタグを付ける</td></tr><tr><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">M3</b></td><td style="padding:0.45em 0.7em">関門の自動判定、AI による分解の下書き、ガイドとスライドの生成</td><td style="padding:0.45em 0.7em">docs/ の手作業を置き換えられるか確かめる</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em"><b style="color:#1B1F2A">M4</b></td><td style="padding:0.45em 0.7em">フィードバックの循環、指標</td><td style="padding:0.45em 0.7em">日々使った気づきを登録して次のサイクルを回す</td></tr></table><p style="font-size:26px;line-height:1.6;color:#4A5160">M1 の前に、アプリを変えずに「今の機能をストーリーマップに貼る棚卸し」を文書で行うと、<br>使い方がわかりにくくなった原因（孤立・重複した機能）が先に見える</p>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">14 / 15</p>
+</section>
+<section id="questions" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">14 · 確認したいこと</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">方向が決まったら、設計書とスライドに詳しくまとめる</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px;flex:1"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">1. 別アプリか、拡張か</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">おすすめは今のタスクアプリの拡張。開発タスク・MCP・質問の仕組みをそのまま使えるため</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">2. 利用者</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">あなたと AI エージェントだけを想定してよいか。将来チームで使うなら、権限やレビューの設計が変わる</div></div><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">3. 最初の題材</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">このアプリ自身の要求（特にわかりにくくなったマイタスク周り）で M1 を試してよいか</div></div></div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">15 / 15</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

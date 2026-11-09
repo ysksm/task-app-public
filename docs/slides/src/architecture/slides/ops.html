@@ -1,0 +1,10 @@
+<section id="ops" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 運用</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">起動・MCP 登録・バックアップ</h2>
+</div>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:22px;line-height:1.45;color:#E6E8EF">#&#160;データディレクトリ:&#160;~/.taskapp/taskapp.db<br>taskapp&#160;serve&#160;--port&#160;7700&#160;--data&#160;~/.taskapp<br>taskapp&#160;serve&#160;--host&#160;0.0.0.0&#160;&#160;#&#160;ほかの端末から（画面はパスワード）<br>taskapp&#160;serve&#160;--behind-proxy&#160;--public-url&#160;https://task.example.ts.net&#160;&#160;#&#160;tailscale&#160;serve&#160;の後ろ<br><br>#&#160;MCP&#160;登録（Claude&#160;Code）<br>claude&#160;mcp&#160;add&#160;taskapp&#160;-e&#160;TASKAPP_TOKEN=tk_xxx&#160;--&#160;taskapp&#160;mcp<br>claude&#160;mcp&#160;add&#160;--transport&#160;http&#160;taskapp&#160;http://127.0.0.1:7700/mcp&#160;\<br>&#160;&#160;--header&#160;"Authorization:&#160;Bearer&#160;tk_xxx"<br><br>#&#160;自動バックアップ（既定:&#160;24h&#160;ごと・7&#160;件・&lt;data&gt;/backups）<br>taskapp&#160;serve&#160;--backup-interval&#160;6h&#160;--backup-keep&#160;30<br>taskapp&#160;backup&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;#&#160;手動（同じフォルダへ）<br>taskapp&#160;restore&#160;--from&#160;FILE&#160;&#160;&#160;&#160;#&#160;停止中に戻す<br>taskapp&#160;export&#160;--out&#160;data.json&#160;#&#160;import&#160;--in&#160;で復元</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">15 / 15</p>
+</section>

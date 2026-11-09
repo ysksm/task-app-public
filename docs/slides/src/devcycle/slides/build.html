@@ -1,0 +1,15 @@
+<section id="build" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">12 · 作り方</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">今のタスクアプリを土台に、要求の層を上に足す</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">そのまま使うもの</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">課題・MCP・質問・チェックポイント・受け入れ依頼。<br>L8（開発タスク）と L9（検証）の受け皿になる</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">新しく足すもの</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">要求（L0〜L6）と設計要素（L7）は<b style="color:#1B1F2A">課題タイプとしてではなく別のテーブル</b>で持つ。<br>完了で閉じない・版を重ねる、というライフサイクルが課題と違うため</div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:28px 32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">今までどおり</h3><div style="font-size:24px;line-height:1.6;color:#4A5160">API を先に定義し、apitest で振る舞いを固定する。<br>将来の Rust への書き直しでも同じテストが使える</div></div>
+</div>
+<div style="background:#1B1F2A;color:#F5F4EF;border-radius:16px;padding:28px 36px;font-size:27px;line-height:1.6">
+別アプリにしない理由：開発タスク・AI エージェント接続・質問の仕組みをゼロから作り直すことになり、<br>しかも要求と開発タスクのつなぎ目が 2 つのアプリにまたがってしまう
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">13 / 15</p>
+</section>

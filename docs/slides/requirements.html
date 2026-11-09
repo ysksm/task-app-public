@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>タスク管理アプリ 要求仕様</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0E1016; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+  #stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  #stage > section:not(.active) { display: none !important; }
+  aside { display: none; }
+  ul, ol { padding-left: 1.2em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 0.35em 0.6em; border-bottom: 1px solid rgba(127,127,127,.3); vertical-align: top; }
+  x-icon, x-shape { display: inline-block; flex: none; }
+  x-shape[kind="arrow-right"] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+  x-shape[kind="arrow-left"]  { clip-path: polygon(100% 30%, 40% 30%, 40% 0, 0 50%, 40% 100%, 40% 70%, 100% 70%); }
+  x-shape[kind="arrow-down"]  { clip-path: polygon(30% 0, 70% 0, 70% 60%, 100% 60%, 50% 100%, 0 60%, 30% 60%); }
+  x-shape[kind="arrow-up"]    { clip-path: polygon(30% 100%, 70% 100%, 70% 40%, 100% 40%, 50% 0, 0 40%, 30% 40%); }
+  x-shape[kind="ellipse"]     { border-radius: 50%; }
+  x-shape[kind="diamond"]     { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  x-shape[kind="rounded"]     { border-radius: 16px; }
+  x-shape[kind="line"]        { height: 0 !important; border-top: 3px solid currentColor; }
+  #nav { position: fixed; right: 16px; bottom: 12px; color: #8A90A2; font: 14px sans-serif; }
+  #nav a { color: #A9A7FF; }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { overflow: visible; height: auto; background: none; }
+    #stage { position: static; transform: none !important; width: auto; height: auto; }
+    #stage > section, #stage > section:not(.active) { position: relative; display: flex !important; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#6E6BF0"></div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#A9A7FF;letter-spacing:2px">REQUIREMENTS SPEC · v0.1</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-size:96px;font-weight:900;line-height:1.15;color:#F5F4EF">AIエージェントと人間の<br>タスク管理アプリ</h1>
+<p style="font-size:40px;color:#B9BED0;line-height:1.5">Linearライクな操作感 · Jira REST API v3 互換 · MCPサーバー</p>
+</div>
+<div style="display:flex;gap:48px;align-items:center">
+<p style="font-size:28px;color:#B9BED0">要求仕様 ドラフト（レビュー用）</p>
+<p style="font-size:28px;color:#B9BED0">2026-10-11</p>
+</div>
+<aside>要求仕様のドラフトです。この後のアーキテクチャ、画面、ER図、実装計画は docs/ 配下の Markdown にまとめています。</aside>
+</section>
+<section id="background" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">01 · 背景と課題</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">エージェントの作業が「見えない・届かない・つながらない」</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:40px">
+<h3 style="font-size:40px;font-weight:700;color:#5B58D6">見えない</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">何をどこまで進めたか、なぜその判断をしたかが後から追えない</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:40px">
+<h3 style="font-size:40px;font-weight:700;color:#5B58D6">届かない</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">判断に迷った点が人間に届かず、勝手に決めるか止まってしまう</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:40px">
+<h3 style="font-size:40px;font-weight:700;color:#5B58D6">つながらない</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">エピック・ストーリー・QA・受入検査が、エージェントの作業単位と分断している</p>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:24px;background:#1B1F2A;border-radius:16px;padding:36px 48px">
+<x-icon name="Lightbulb" style="color:#A9A7FF;width:48px;height:48px"></x-icon>
+<p style="font-size:34px;font-weight:500;color:#F5F4EF;line-height:1.5">人間のプロジェクト管理とエージェントの作業記録を、1つの階層データで管理する</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">2 / 18</p>
+<aside>課題の3点。解決の方針は、人間とエージェントが同じ階層データを見て、同じチケットに記録すること。</aside>
+</section>
+<section id="concept" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · コンセプト</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">内部は Linear ライク、外部は Jira 互換と MCP</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #5B58D6;border-radius:12px;padding:40px">
+<x-icon name="Home" style="color:#5B58D6;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">Linear ライク UI</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">シンプルなステータスと階層データ。キーボード中心で速く操作できる</p>
+<p style="font-size:24px;color:#5B58D6;font-weight:500">人間: PM・QA・受入検査</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #2F7D8C;border-radius:12px;padding:40px">
+<x-icon name="Link" style="color:#2F7D8C;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">Jira 互換 API (v3)</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">REST API v3 互換。ORCA の Jira 連携（Cloud モード）からそのまま接続できる</p>
+<p style="font-size:24px;color:#2F7D8C;font-weight:500">ORCA: タスク取得・更新</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border-top:8px solid #B85A1E;border-radius:12px;padding:40px">
+<x-icon name="Tool" style="color:#B85A1E;width:56px;height:56px"></x-icon>
+<h3 style="font-size:40px;font-weight:700">MCP サーバー</h3>
+<p style="font-size:30px;line-height:1.6;color:#4A5160">エージェントがチェックポイント記録や QA 起票をツールとして呼べる</p>
+<p style="font-size:24px;color:#B85A1E;font-weight:500">エージェント: 記録・質問</p>
+</div>
+</div>
+<p style="font-size:28px;color:#4A5160">手元の PC で動く単一バイナリ（ほかの端末からも接続可）。UI・API・MCP は同じサービス層を通る</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 18</p>
+<aside>ORCA は stablyai/orca。Jira の Cloud モードでは /rest/api/3 を Basic（メール + API トークン）で呼び、説明・コメントは ADF でやり取りすることをソースで確認済み。接続先 URL は atlassian.net に限定されない。</aside>
+</section>
+<section id="actors" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">03 · 利用者</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">人間・エージェント・ORCA の3者が同じチケットを扱う</h2>
+</div>
+<table style="font-size:28px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:30%;color:#F5F4EF;padding:16px 24px">アクター</th><th style="width:70%;color:#F5F4EF">主な操作</th></tr>
+<tr><td>👤 プロジェクト管理者</td><td>エピック・ストーリー定義、優先度付け、マインドマップで全体確認</td></tr>
+<tr style="background:#ECEBE4"><td>👤 開発者 / QA 回答者</td><td>エージェントの質問に回答、作業レビュー、自分の担当確認</td></tr>
+<tr><td>👤 受入検査者</td><td>受入基準のチェック、合格 / 差し戻しの判定</td></tr>
+<tr style="background:#ECEBE4"><td>🤖 AI エージェント</td><td>タスク取得、ステータス更新、チェックポイント記録、QA 起票、子タスク作成</td></tr>
+<tr><td>🔗 ORCA</td><td>Jira クライアントとして検索・閲覧・作成・遷移・コメント</td></tr>
+</table>
+<p style="font-size:28px;color:#4A5160">サーバーは手元の PC で 1 つ。人間は主にオーナー1名（ほかの端末からはパスワードでログイン）。データ上は複数の人間とエージェントを区別する</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 18</p>
+</section>
+<section id="hierarchy" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · チケット階層</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">エピックからタスクまで、親子でつなぐ</h2>
+</div>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#6A4FC9;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">エピック</p>
+<p style="font-size:24px;color:#E4DEFA">目的・テーマ</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#2D63B8;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">ストーリー</p>
+<p style="font-size:24px;color:#DCE7F8">利用者の要求</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#2B7A4B;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">フィーチャー</p>
+<p style="font-size:24px;color:#DAF0E2">機能単位</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#4A5160;border-radius:16px;padding:32px 16px">
+<p style="font-size:34px;font-weight:700;color:#F5F4EF">タスク</p>
+<p style="font-size:24px;color:#E2E4EA">実作業</p>
+</div>
+<x-shape kind="arrow-right" style="background:#9AA0B0;width:48px;height:28px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FCFBF8;border:3px dashed #4A5160;border-radius:16px;padding:29px 13px">
+<p style="font-size:34px;font-weight:700;color:#4A5160">タスク …</p>
+<p style="font-size:24px;color:#4A5160">深さ無制限</p>
+</div>
+</div>
+<div style="display:flex;gap:48px">
+<ul style="flex:1;font-size:30px;line-height:1.7;color:#4A5160">
+<li>すべてのチケットは1つのプロジェクトに所属し、<span style="color:#1B1F2A">APP-123</span> 形式で採番</li>
+<li>子は親と同じプロジェクト。循環は禁止</li>
+<li>途中を飛ばす親子（エピック直下のタスク等）は設定で許可</li>
+</ul>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBEFE6;border-left:8px solid #B85A1E;border-radius:12px;padding:32px 40px">
+<h3 style="font-size:34px;font-weight:700;color:#8F4415">QA チケット</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">エージェントの確認事項。どの階層のチケットにも子としてぶら下げられる（QA の下には置けない）</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 18</p>
+<aside>内部では1つの issues テーブルに parent_id を持たせ、種別ごとの親子規則はアプリ側で検証する。</aside>
+</section>
+<section id="status" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · ステータス</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">ステータスはカテゴリに属し、Jira へ対応付ける</h2>
+</div>
+<div style="display:flex;gap:48px">
+<div style="flex:2;display:flex;flex-direction:column">
+<table style="font-size:28px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:26%;color:#F5F4EF;padding:16px 24px">カテゴリ</th><th style="width:44%;color:#F5F4EF">既定ステータス</th><th style="width:30%;color:#F5F4EF">Jira</th></tr>
+<tr style="background:#FCFBF8"><td>backlog</td><td>Backlog</td><td>To Do</td></tr>
+<tr><td>unstarted</td><td>Todo</td><td>To Do</td></tr>
+<tr style="background:#FCFBF8"><td>started</td><td>In Progress / In Review / 受入待ち</td><td>In Progress</td></tr>
+<tr><td>completed</td><td>Done</td><td>Done</td></tr>
+<tr style="background:#FCFBF8"><td>canceled</td><td>Canceled</td><td>Done + 解決状況</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border-radius:12px;padding:32px">
+<h3 style="font-size:32px;font-weight:700">遷移は自由</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">Linear と同じく遷移制約なし。名前・色・順序はプロジェクトごとに変更可</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border-radius:12px;padding:32px">
+<h3 style="font-size:32px;font-weight:700;color:#8F4415">QA 専用</h3>
+<p style="font-size:26px;line-height:1.6;color:#4A5160">未回答 → 回答済 → クローズ</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 18</p>
+</section>
+<section id="views" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 一覧・フィルタ・マイタスク・全体ボード</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">プロジェクトごとに絞り込み、自分の担当がすぐ分かる</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<h3 style="font-size:36px;font-weight:700">3つの表示</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">リスト / ボード（カンバン）/ ツリー（階層）を切り替え。グルーピングと並び替えも可能</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<h3 style="font-size:36px;font-weight:700">フィルタ</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">種別・ステータス・担当（人間/エージェント）・起票者・ラベル・優先度・親・期日・テキスト</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<h3 style="font-size:36px;font-weight:700;color:#5B58D6">マイタスク</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">全プロジェクト横断で「担当」「起票したもの」「回答待ち QA」をタブ表示。全体ボードは全プロジェクトを 1 枚に（列は分類、行はプロジェクト。★注力 → 通常 → 🌱その他の段）</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<h3 style="font-size:36px;font-weight:700">保存ビューと URL</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">条件に名前を付けて保存。条件は URL にも残り、リロードしても再現できる</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">7 / 18</p>
+</section>
+<section id="checkpoint" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">07 · エージェント: チェックポイント</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">進捗と一緒に「判断基準」を残す</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:30px;line-height:1.6;color:#4A5160">エージェントは作業の節目ごとにチェックポイントを記録する。人間はチケット詳細のタイムラインと、全体の活動フィードで確認する</p>
+<ul style="font-size:28px;line-height:1.7;color:#4A5160">
+<li>判断基準（なぜそうしたか）は必須項目</li>
+<li>確信度「低」はハイライトしてレビュー対象に</li>
+<li>作業中に子タスクを自分で作成できる</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FCFBF8;border:1px solid #DDDBD3;border-left:8px solid #5B58D6;border-radius:12px;padding:36px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6">🤖 claude · APP-12 · #3 · 確信度: 中 · 60%</p>
+<p style="font-size:26px;line-height:1.5"><b>要約</b>　フォームと API 呼び出しを実装</p>
+<p style="font-size:26px;line-height:1.5"><b>判断</b>　状態管理に React Hook Form を採用</p>
+<p style="font-size:26px;line-height:1.5;background:#ECEBFB;border-radius:8px;padding:8px 12px"><b>判断基準</b>　既存の依存に含まれる / バリデーション連携が容易</p>
+<p style="font-size:26px;line-height:1.5"><b>代替案</b>　Formik（依存追加が必要なため不採用）</p>
+<p style="font-size:26px;line-height:1.5"><b>次</b>　エラー表示。QA APP-18 の回答待ち</p>
+<p style="font-size:26px;line-height:1.5"><b>成果物</b>　branch feat/login, commit a1b2c3</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">8 / 18</p>
+<aside>チェックポイントは専用テーブルに構造化して保存。Jira API 経由ではコメントとして見えるように変換する。</aside>
+</section>
+<section id="qa" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F0A673;letter-spacing:2px">08 · エージェント: QA</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#F5F4EF">迷ったら、QA チケットで人間に聞く</h2>
+</div>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#F0A673">🤖 エージェント</p>
+<p style="font-size:30px;font-weight:700">QA を起票</p>
+<p style="font-size:24px;color:#B9BED0;line-height:1.5">対象チケットの子として作成</p>
+</div>
+<x-shape kind="arrow-right" style="background:#6B7285;width:44px;height:26px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#A9A7FF">👤 人間</p>
+<p style="font-size:30px;font-weight:700">インボックスで回答</p>
+<p style="font-size:24px;color:#B9BED0;line-height:1.5">選択肢を選ぶか自由記述</p>
+</div>
+<x-shape kind="arrow-right" style="background:#6B7285;width:44px;height:26px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#F0A673">🤖 エージェント</p>
+<p style="font-size:30px;font-weight:700">回答を取得</p>
+<p style="font-size:24px;color:#B9BED0;line-height:1.5">API / MCP で受け取り作業再開</p>
+</div>
+<x-shape kind="arrow-right" style="background:#6B7285;width:44px;height:26px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#B9BED0">どちらでも</p>
+<p style="font-size:30px;font-weight:700">クローズ</p>
+<p style="font-size:24px;color:#B9BED0;line-height:1.5">対応完了後に閉じる</p>
+</div>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #3A4152;padding:24px 0px 0px 0px">
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">回答形式</h3>
+<p style="font-size:26px;line-height:1.6;color:#B9BED0">1 チケットに複数の質問。はい/いいえ・OK/NG、単一選択・複数選択（推奨に印）、テキスト。AI は構造化された回答を読み取る</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #3A4152;padding:24px 0px 0px 0px">
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">ブロッキング</h3>
+<p style="font-size:26px;line-height:1.6;color:#B9BED0">未回答の間、対象チケットに「QA 待ち」バッジ。サイドバーに件数を表示</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#8A90A2">9 / 18</p>
+</section>
+<section id="acceptance" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · 受入検査</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">受入基準ごとに判定し、合格か差し戻しを決める</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6">STEP 1</p>
+<h3 style="font-size:36px;font-weight:700">基準を定義</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">ストーリー / フィーチャーに受入基準をチェックリストで書く</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6">STEP 2</p>
+<h3 style="font-size:36px;font-weight:700">受入待ちへ</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">ステータスを「受入待ち」にすると受入検査画面に並ぶ</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6">STEP 3</p>
+<h3 style="font-size:36px;font-weight:700">判定</h3>
+<p style="font-size:28px;line-height:1.6;color:#4A5160">基準ごとに OK / NG とコメント。合格で Done、差し戻しで In Progress</p>
+</div>
+</div>
+<div style="display:flex;gap:24px;align-items:center;background:#E6ECF7;border-radius:16px;padding:28px 40px">
+<x-icon name="Warning" style="color:#2D63B8;width:44px;height:44px"></x-icon>
+<p style="font-size:28px;line-height:1.5;color:#1B1F2A">判定時、未完了の子チケットや未回答 QA があれば警告。判定の履歴（回数・判定者・理由）はすべて残す</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">10 / 18</p>
+</section>
+<section id="mindmap" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<svg aria-label="プロジェクトからエピック、ストーリーへ枝分かれするマインドマップの線" style="position:absolute;left:1000px;top:300px;width:792px;height:600px" width="792" height="600" viewBox="0 0 792 600"><g fill="none" stroke="#9AA0B0" stroke-width="3"><path d="M200 300 C240 300 240 96 280 96"/><path d="M200 300 L280 296"/><path d="M200 300 C240 300 240 496 280 496"/><path d="M500 96 C530 96 530 56 560 56"/><path d="M500 96 C530 96 530 136 560 136"/><path d="M500 296 L560 296"/><path d="M500 496 C530 496 530 456 560 456"/><path d="M500 496 C530 496 530 536 560 536"/></g></svg>
+<div style="display:flex;flex-direction:column;gap:16px;width:800px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · マインドマップ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">全体像をマインドマップ風に俯瞰する</h2>
+</div>
+<ul style="width:800px;font-size:30px;line-height:1.7;color:#4A5160">
+<li>プロジェクト全体、またはエピック単位で表示</li>
+<li>種別ごとに色分けし、ステータスと進捗を表示</li>
+<li>展開・折りたたみ、ズーム、パン</li>
+<li>ノードをクリックすると詳細をサイドに表示</li>
+<li>一覧と同じフィルタを適用（対象外は薄く）</li>
+</ul>
+<p style="position:absolute;left:1000px;top:560px;width:200px;font-size:26px;font-weight:700;color:#F5F4EF;background:#1B1F2A;border-radius:40px;padding:18px 0px;text-align:center">APP</p>
+<p style="position:absolute;left:1280px;top:360px;width:220px;font-size:24px;color:#F5F4EF;background:#6A4FC9;border-radius:12px;padding:16px 12px;text-align:center">認証基盤 3/5</p>
+<p style="position:absolute;left:1280px;top:560px;width:220px;font-size:24px;color:#F5F4EF;background:#6A4FC9;border-radius:12px;padding:16px 12px;text-align:center">Jira互換API 1/4</p>
+<p style="position:absolute;left:1280px;top:760px;width:220px;font-size:24px;color:#F5F4EF;background:#6A4FC9;border-radius:12px;padding:16px 12px;text-align:center">マップ表示 0/3</p>
+<p style="position:absolute;left:1560px;top:324px;width:232px;font-size:24px;color:#F5F4EF;background:#2D63B8;border-radius:12px;padding:14px 12px;text-align:center">ログイン ✓</p>
+<p style="position:absolute;left:1560px;top:404px;width:232px;font-size:24px;color:#F5F4EF;background:#2D63B8;border-radius:12px;padding:14px 12px;text-align:center">再設定</p>
+<p style="position:absolute;left:1560px;top:564px;width:232px;font-size:24px;color:#F5F4EF;background:#2D63B8;border-radius:12px;padding:14px 12px;text-align:center">ORCA一覧 🤖</p>
+<p style="position:absolute;left:1560px;top:724px;width:232px;font-size:24px;color:#F5F4EF;background:#2D63B8;border-radius:12px;padding:14px 12px;text-align:center">全体を俯瞰</p>
+<p style="position:absolute;left:1560px;top:804px;width:232px;font-size:24px;color:#F5F4EF;background:#2D63B8;border-radius:12px;padding:14px 12px;text-align:center">詳細を開く</p>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">11 / 18</p>
+<aside>React Flow で描画し、配置は自前のツリーレイアウトで計算する。右の図はイメージ。</aside>
+</section>
+<section id="jira" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">11 · Jira 互換 API（ORCA 連携）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">ORCA が呼ぶ REST API v3 を実装する</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:start">
+<div style="flex:3;display:flex;flex-direction:column">
+<table style="font-size:24px;color:#1B1F2A;font-family:'JetBrains Mono', 'Courier New', monospace">
+<tr style="background:#1B1F2A"><th style="width:22%;color:#F5F4EF;padding:10px 20px">メソッド</th><th style="width:78%;color:#F5F4EF">パス（/rest/api/3 以下）</th></tr>
+<tr><td>GET</td><td>/myself · /serverInfo · /project/search</td></tr>
+<tr style="background:#ECEBE4"><td>GET POST</td><td>/search/jql（JQL）</td></tr>
+<tr><td>GET POST PUT</td><td>/issue · /issue/{key}</td></tr>
+<tr style="background:#ECEBE4"><td>PUT</td><td>/issue/{key}/assignee</td></tr>
+<tr><td>GET POST</td><td>/issue/{key}/transitions</td></tr>
+<tr style="background:#ECEBE4"><td>GET POST</td><td>/issue/{key}/comment</td></tr>
+<tr><td>GET</td><td>/issue/createmeta/… · /priority · /user/search</td></tr>
+<tr style="background:#ECEBE4"><td>GET</td><td>/rest/agile/1.0/board（+ configuration）</td></tr>
+</table>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:10px;background:#E3F0F2;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700;color:#1F5A65">認証</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">Basic（メール + API トークン）。説明・コメントは ADF ⇔ Markdown 変換</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#E3F0F2;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700;color:#1F5A65">JQL サブセット</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">project, key, issuetype, status, assignee, parent, text ~ など。AND / OR / NOT、currentUser()、ORDER BY</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#E3F0F2;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700;color:#1F5A65">種別の対応</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">Epic / Story / Feature / Task / Question。親子は fields.parent</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">12 / 18</p>
+<aside>エンドポイントは stablyai/orca の src/main/jira（Cloud モード）を調べて洗い出した。ORCA の既定 JQL 例: assignee = currentUser() AND resolution = Unresolved ORDER BY updated DESC。v2（Server/DC）は今回スコープ外。</aside>
+</section>
+<section id="mcp" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B85A1E;letter-spacing:2px">12 · MCP サーバー</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">エージェントはツールとして記録・質問する</h2>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">取得</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.7;color:#4A5160">list_projects<br>list_my_issues<br>search_issues<br>get_issue<br>get_issue_tree</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">更新</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.7;color:#4A5160">create_issue<br>update_issue<br>transition_issue<br>add_comment</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border-left:6px solid #B85A1E;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700;color:#8F4415">記録・質問</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.7;color:#4A5160">record_checkpoint<br>ask_question<br>get_question_answers<br>close_question<br>request_acceptance</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<p style="flex:1;font-size:26px;line-height:1.5;color:#4A5160;background:#FCFBF8;border-radius:12px;padding:24px 28px"><b>stdio</b>　taskapp mcp（トークンは環境変数）</p>
+<p style="flex:1;font-size:26px;line-height:1.5;color:#4A5160;background:#FCFBF8;border-radius:12px;padding:24px 28px"><b>HTTP</b>　/mcp（Bearer トークン）</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">13 / 18</p>
+<aside>リソースとしてチケットと階層ツリー、プロンプトとして作業手順テンプレート（着手→チェックポイント→QA→完了）も提供する。</aside>
+</section>
+<section id="multidevice" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 複数端末からの利用（§4.12）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">スマホや別の PC からも、ログインして使う</h2>
+</div>
+<table style="font-size:24px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:12%;color:#F5F4EF;padding:0.4em 0.6em">ID</th><th style="width:88%;color:#F5F4EF;padding:0.4em 0.6em">要求</th></tr>
+<tr><td>MD-01</td><td>--host で外部から接続できるアドレスで待ち受けられる。既定は 127.0.0.1 のまま</td></tr>
+<tr style="background:#ECEBE4"><td>MD-02</td><td>ログイン画面。人間はユーザー名 + パスワード、エージェントはトークンだけ</td></tr>
+<tr><td>MD-03</td><td>パスワードは設定画面と taskapp passwd で設定。8 文字以上、ハッシュで保存し API・エクスポートに出さない</td></tr>
+<tr style="background:#ECEBE4"><td>MD-04</td><td>ログインはサーバーが動いている間だけ有効。ログアウトできる</td></tr>
+<tr><td>MD-05</td><td>パスワードなしの自動ログインは、この PC（接続元と Host がループバック）からだけ</td></tr>
+<tr style="background:#ECEBE4"><td>MD-06</td><td>外部向けで起動したら、暗号化されないことを警告。保護は VPN（Tailscale など）に任せる</td></tr>
+<tr><td>MD-07</td><td>MCP（HTTP）と Jira 互換 API はほかの端末からもトークンで。設定画面に URL を出す</td></tr>
+<tr style="background:#ECEBE4"><td>MD-08（S）</td><td>パスワードの総当たりを遅らせる（続けて失敗したら一時的に断る）</td></tr>
+<tr><td>MD-09（S）</td><td>同じマシンのリバースプロキシ（tailscale serve など）の後ろで動かせる。MCP はプロキシの Host を受け、自動ログインは止める</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">14 / 18</p>
+</section>
+<section id="storymap" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 要求の層（ストーリーマップ・§4.13）</p>
+<h2 style="font-size:60px;font-weight:700;line-height:1.25;color:#1B1F2A">誰が・どんな場面で・何のために、をイシューとつなぐ</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px"><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700;color:#5B58D6">ペルソナとジョブ（REQ-01）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">人 / AI のペルソナ。ジョブは「状況・したいこと・そうすれば」で書き、活動につなぐ</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">ストーリーマップ（REQ-02, 05）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">活動と手順を横、リリースを縦。手順の下にストーリー。手順のないストーリーなどの抜けを一覧</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">受け入れ条件とイシュー（REQ-03, 04, 08）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">Given / When / Then。同じプロジェクトのイシューをつなぎ、カードの色はその状態から。受入基準へ写せる</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">閉じない・使い回さない（REQ-06, 07）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">削除はアーカイブ、キー（TAPP-ST12 など）は使い回さない。変更履歴。イシュー詳細と MCP に「なぜ」</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">15 / 18</p>
+</section>
+<section id="storymap-loose" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">14 · 要求の層をゆるく使う（案 D・§4.13）</p>
+<h2 style="font-size:60px;font-weight:700;line-height:1.25;color:#1B1F2A">ひとことで書き始め、分類は後から AI と付ける</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px"><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700;color:#5B58D6">ひとこと入力と未整理（REQ-09）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">タイトルだけで作れる。ペルソナ・手順・リリースは選ばず、最初の列「未整理」へ</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">本文と 1 行の条件（REQ-10, 11）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">自由な本文（Markdown）。条件は結果の 1 行で書け、前提・操作は「詳しく」</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">使うときだけ（REQ-12）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">ペルソナ・活動が 0 件なら、絞り込みも列も出さない。抜けは警告にせず数だけ</p></div><div style="display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:30px"><h3 style="font-size:32px;font-weight:700">AI が聞いてから直す（REQ-13）</h3><p style="font-size:25px;line-height:1.6;color:#4A5160">MCP の create_story・update_story。動かす前に ask_question で聞き、はいだけ直す</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">16 / 18</p>
+</section>
+<section id="nfr" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">15 · 非機能要求とスコープ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25">ローカルで軽く動き、すべての変更を追える</h2>
+</div>
+<div style="display:flex;gap:48px">
+<div style="flex:3;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">配布</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">UI 同梱の単一バイナリ。SQLite に保存</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">性能</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">1万件で一覧・フィルタ 300ms 以内</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">即時性</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">エージェントの更新を数秒で UI に反映</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">セキュリティ</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">既定は 127.0.0.1 のみ。API はトークン、ほかの端末の画面はパスワード</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">監査</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">誰が・どの経路（UI / Jira / MCP）で変えたか記録</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:12px;padding:28px">
+<h3 style="font-size:30px;font-weight:700">UI</h3>
+<p style="font-size:26px;line-height:1.5;color:#4A5160">日本語、ダーク / ライトモード</p>
+</div>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:16px;background:#ECEBE4;border-radius:12px;padding:32px">
+<h3 style="font-size:30px;font-weight:700">今回はやらない</h3>
+<ul style="font-size:26px;line-height:1.7;color:#4A5160">
+<li>マルチテナント・SSO・細かい権限</li>
+<li>アプリ自体での HTTPS（VPN で）</li>
+<li>Jira Server/DC API（v2）</li>
+<li>カスタムフィールド・ワークフロー条件</li>
+<li>スプリント管理</li>
+<li>メール / Slack 通知</li>
+</ul>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">17 / 18</p>
+</section>
+<section id="next" data-transition="fade" style="background:#1B1F2A;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF;letter-spacing:2px">16 · 進め方</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#F5F4EF">フェーズごとに動くものを確認する</h2>
+</div>
+<div style="display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:12px;padding:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF">P0</p>
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">基盤</h3>
+<p style="font-size:24px;line-height:1.5;color:#B9BED0">Go・SQLite・React の雛形とデモデータ</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:12px;padding:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF">P1 · 確認1</p>
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">コア</h3>
+<p style="font-size:24px;line-height:1.5;color:#B9BED0">階層・一覧・フィルタ・マイタスク</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:12px;padding:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF">P2 · 確認2</p>
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">Jira 互換</h3>
+<p style="font-size:24px;line-height:1.5;color:#B9BED0">ORCA から実接続</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:12px;padding:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF">P3 · 確認3</p>
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">エージェント</h3>
+<p style="font-size:24px;line-height:1.5;color:#B9BED0">チェックポイント・QA・MCP</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A3040;border-radius:12px;padding:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A9A7FF">P4 · 確認4</p>
+<h3 style="font-size:30px;font-weight:700;color:#F5F4EF">管理機能</h3>
+<p style="font-size:24px;line-height:1.5;color:#B9BED0">受入検査・マインドマップ・ビュー</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:2px solid #3A4152;padding:28px 0px 0px 0px">
+<h3 style="font-size:30px;font-weight:700;color:#F0A673">確認したいこと</h3>
+<ul style="font-size:26px;line-height:1.7;color:#B9BED0">
+<li>バックエンドは Go で進めてよいか（Rust も可）</li>
+<li>階層の途中を飛ばす親子を既定で許可してよいか</li>
+<li>ORCA 上で Feature / Question 種別がどう見えるかは P2 で実機確認</li>
+</ul>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#8A90A2">18 / 18</p>
+</section>
+</div>
+<div id="nav"><a href="index.html">一覧</a> · ← → / Space で移動 · P で印刷(PDF)</div>
+<script>
+  const slides = [...document.querySelectorAll('#stage > section')];
+  const icons = {"Activity": "📈", "Book": "📘", "Chart": "📊", "Chat": "💬", "Check": "✔", "CheckCircle": "✅", "Clock": "🕒", "Cloud": "☁", "Code": "⌨", "Database": "🗄", "Globe": "🌐", "GraduationCap": "🎓", "Home": "🏠", "Key": "🔑", "Lightbulb": "💡", "Lightning": "⚡", "Link": "🔗", "Lock": "🔒", "PaperPlane": "✈", "Play": "▶", "Search": "🔍", "Settings": "⚙", "Star": "★", "ThumbsUp": "👍", "Tool": "🛠", "Trust": "🤝", "Users": "👥", "Verified": "✔", "Warning": "⚠", "Wrench": "🔧"};
+  document.querySelectorAll('x-icon').forEach(el => {
+    const h = el.style.height || '40px';
+    el.textContent = icons[el.getAttribute('name')] || '•';
+    el.style.fontSize = (parseInt(h) || 40) * 0.8 + 'px'; el.style.lineHeight = h; el.style.textAlign = 'center';
+  });
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1));
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fit() {
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fit);
+  addEventListener('hashchange', () => show((parseInt(location.hash.slice(1)) || 1) - 1));
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'p') print();
+  });
+  addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+  fit(); show(i);
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "taskapp-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Browser tests of the main screens. Like apitest/, they only start $TASKAPP_BIN, so any implementation can be verified.",
+  "scripts": {
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3"
+  }
+}

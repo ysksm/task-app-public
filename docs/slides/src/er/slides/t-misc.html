@@ -1,0 +1,48 @@
+<section id="t-misc" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">09 · テーブル ⑧ ビュー・履歴・添付</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">保存ビュー・変更履歴・添付ファイル</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">saved_views</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">project_id</span></td><td>NULL = 横断ビュー</td></tr>
+<tr><td><span style="color:#5B58D6">owner_id</span></td><td>→ users</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">name</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">filter</span></td><td>JSON（domain.Filter）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">display</span></td><td>JSON: layout, group, sort</td></tr>
+<tr><td><span style="color:#5B58D6">position</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at / updated_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">activities</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>連番（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">actor_id</span></td><td>→ users</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>ui | jira | mcp | system</td></tr>
+<tr><td><span style="color:#5B58D6">action</span></td><td>created, updated, state_changed …</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">field</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">old_value / new_value</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">attachments</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">uploader_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">filename / mime_type</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">size</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">storage_path</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">11 / 15</p>
+</section>

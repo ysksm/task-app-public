@@ -1,0 +1,20 @@
+<section id="how" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">04 · 画面テストの書き方</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">画面で操作し、API でも結果を確かめる</h2>
+</div>
+<div style="display:flex;gap:36px"><div style="flex:3;display:flex;flex-direction:column;gap:20px"><pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:21px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">import { expect, test } from "../fixtures.js";
+
+test("担当を変えるとマイタスクから消える",
+  async ({ page, demo }) =&gt; {
+  await page.goto("/my");
+  await expect(page.getByText("Jira互換API")).toBeVisible();
+  // エージェントとしての操作も API で書ける
+  await demo.api("claude").patch(
+    "/api/v1/issues/APP-12", { assignee: "claude" });
+  await expect(page.getByText("Jira互換API")).toHaveCount(0);
+});</pre></div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px"><div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">demo.api(who)</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">owner / alice / claude / codex として API を呼ぶ</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#5B58D6">peek(page)</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">右の詳細パネル。data-issue-key で開いているイシューを確かめる</p></div></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">5 / 6</p>
+</section>

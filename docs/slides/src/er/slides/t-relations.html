@@ -1,0 +1,49 @@
+<section id="t-relations" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">05 · テーブル ④ 関連とコメント</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">ラベル・リンク・コメント</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">labels</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">project_id</span></td><td>→ projects</td></tr>
+<tr><td><span style="color:#5B58D6">name / color</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issue_labels</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>PK, → issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">label_id</span></td><td>PK, → labels</td></tr>
+</table>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">issue_links</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">from_issue_id</span></td><td>→ issues</td></tr>
+<tr><td><span style="color:#5B58D6">to_issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">link_type</span></td><td>blocks | relates | duplicates</td></tr>
+<tr><td><span style="color:#5B58D6">created_by</span></td><td>→ users</td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:20px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">comments</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">jira_id</span></td><td>Jira 用の数値 ID</td></tr>
+<tr><td><span style="color:#5B58D6">issue_id</span></td><td>→ issues</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">author_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">body</span></td><td>Markdown</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">source</span></td><td>ui | jira | mcp</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">updated_at</span></td><td></td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">6 / 15</p>
+</section>

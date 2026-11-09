@@ -1,0 +1,21 @@
+<section id="hierarchy" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">06 · 設計判断 ① 階層</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">階層は1テーブルの自己参照で持つ</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;">
+<ul style="font-size:28px;line-height:1.7;color:#4A5160">
+<li>issues.parent_id で親を表す。種別ごとの親子規則はサービス層の CanBeChild で検証</li>
+<li>規則はプロジェクト設定（スキップ許可）で変わるため DB 制約にしない</li>
+<li>子孫の取得と進捗集計は再帰 CTE でクエリ時に計算。更新時の集計値は持たない</li>
+<li>親付け替え時は、新しい親の祖先に自分がいないかを再帰 CTE で確認（循環防止）</li>
+<li>1万件で遅ければ issue_closure テーブルの導入を検討</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.55;color:#E6E8EF">WITH&#160;RECURSIVE&#160;tree(id,&#160;depth)&#160;AS&#160;(<br>&#160;&#160;SELECT&#160;id,&#160;0&#160;FROM&#160;issues<br>&#160;&#160;&#160;WHERE&#160;id&#160;=&#160;:root<br>&#160;&#160;UNION&#160;ALL<br>&#160;&#160;SELECT&#160;i.id,&#160;t.depth&#160;+&#160;1<br>&#160;&#160;&#160;&#160;FROM&#160;issues&#160;i<br>&#160;&#160;&#160;&#160;JOIN&#160;tree&#160;t&#160;ON&#160;i.parent_id&#160;=&#160;t.id<br>)<br>SELECT&#160;...&#160;FROM&#160;tree</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">7 / 15</p>
+</section>

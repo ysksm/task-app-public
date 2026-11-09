@@ -1,0 +1,21 @@
+<section id="queries" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">13 · 代表的なクエリ</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">子孫の進捗と循環チェックは再帰 CTE</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+<p style="font-size:26px;line-height:1.6;color:#1B1F2A;font-weight:700">子孫と進捗（ツリー・マップ）</p>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;line-height:1.45;color:#E6E8EF">WITH&#160;RECURSIVE&#160;tree(id,&#160;depth)&#160;AS&#160;(<br>&#160;&#160;SELECT&#160;id,&#160;0&#160;FROM&#160;issues<br>&#160;&#160;&#160;WHERE&#160;id&#160;=&#160;:root&#160;AND&#160;deleted_at&#160;IS&#160;NULL<br>&#160;&#160;UNION&#160;ALL<br>&#160;&#160;SELECT&#160;i.id,&#160;t.depth&#160;+&#160;1<br>&#160;&#160;&#160;&#160;FROM&#160;issues&#160;i&#160;JOIN&#160;tree&#160;t<br>&#160;&#160;&#160;&#160;&#160;&#160;ON&#160;i.parent_id&#160;=&#160;t.id<br>&#160;&#160;&#160;WHERE&#160;i.deleted_at&#160;IS&#160;NULL<br>)<br>SELECT&#160;COUNT(*)&#160;AS&#160;descendants,<br>&#160;&#160;SUM(s.category&#160;IN<br>&#160;&#160;&#160;('completed','canceled'))&#160;AS&#160;done<br>FROM&#160;tree&#160;t&#160;JOIN&#160;issues&#160;i&#160;ON&#160;i.id&#160;=&#160;t.id<br>JOIN&#160;workflow_states&#160;s&#160;ON&#160;s.id&#160;=&#160;i.state_id<br>WHERE&#160;t.depth&#160;&gt;&#160;0;</p>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+<p style="font-size:26px;line-height:1.6;color:#1B1F2A;font-weight:700">循環チェック（付け替え前）</p>
+<div style="display:flex;flex-direction:column;background:#1B1F2A;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:20px;line-height:1.45;color:#E6E8EF">WITH&#160;RECURSIVE&#160;ancestors(id)&#160;AS&#160;(<br>&#160;&#160;SELECT&#160;:new_parent<br>&#160;&#160;UNION&#160;ALL<br>&#160;&#160;SELECT&#160;i.parent_id&#160;FROM&#160;issues&#160;i<br>&#160;&#160;&#160;&#160;JOIN&#160;ancestors&#160;a&#160;ON&#160;i.id&#160;=&#160;a.id<br>&#160;&#160;&#160;WHERE&#160;i.parent_id&#160;IS&#160;NOT&#160;NULL<br>)<br>SELECT&#160;EXISTS&#160;(<br>&#160;&#160;SELECT&#160;1&#160;FROM&#160;ancestors<br>&#160;&#160;&#160;WHERE&#160;id&#160;=&#160;:child<br>);&#160;&#160;--&#160;1&#160;なら循環</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">15 / 15</p>
+</section>

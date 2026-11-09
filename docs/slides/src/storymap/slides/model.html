@@ -1,0 +1,17 @@
+<section id="model" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:96px 112px 128px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">10 · データモデル（マイグレーション 009）</p>
+<h2 style="font-size:56px;font-weight:700;line-height:1.25;color:#1B1F2A">種類ごとに連番のキー。消さずにアーカイブ、変更は履歴に残す</h2>
+</div>
+<div style="display:flex;gap:40px">
+<div style="flex:0.9"><table style="font-size:24px;line-height:1.45;color:#1B1F2A"><tr style="background:#5B58D6"><th style="width:30%;color:#F5F4EF;padding:0.45em 0.7em">種類</th><th style="width:32%;color:#F5F4EF;padding:0.45em 0.7em">キーの例</th><th style="width:38%;color:#F5F4EF;padding:0.45em 0.7em">テーブル</th></tr><tr><td style="padding:0.45em 0.7em">ペルソナ</td><td style="padding:0.45em 0.7em">TAPP-P1</td><td style="padding:0.45em 0.7em">req_personas</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em">ジョブ</td><td style="padding:0.45em 0.7em">TAPP-J3</td><td style="padding:0.45em 0.7em">req_jobs</td></tr><tr><td style="padding:0.45em 0.7em">活動</td><td style="padding:0.45em 0.7em">TAPP-A1</td><td style="padding:0.45em 0.7em">req_activities</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em">手順</td><td style="padding:0.45em 0.7em">TAPP-A1-2</td><td style="padding:0.45em 0.7em">req_steps</td></tr><tr><td style="padding:0.45em 0.7em">ストーリー</td><td style="padding:0.45em 0.7em">TAPP-ST12</td><td style="padding:0.45em 0.7em">req_stories</td></tr><tr style="background:#ECEBE4"><td style="padding:0.45em 0.7em">受け入れ条件</td><td style="padding:0.45em 0.7em">TAPP-AC42</td><td style="padding:0.45em 0.7em">req_criteria</td></tr></table></div>
+<div style="flex:1.1;display:flex;flex-direction:column;gap:14px;font-size:24px;line-height:1.55;color:#4A5160">
+<p><b style="color:#1B1F2A">つながり</b>：req_job_activities（ジョブ ⇄ 活動）、req_story_steps（ストーリー ⇄ 手順）、req_story_issues（ストーリー ⇄ イシュー）。どれも N:N</p>
+<p><b style="color:#1B1F2A">キーの採番</b>：req_counters（プロジェクト × 種類）。アーカイブしてもキーは使い回さない</p>
+<p><b style="color:#1B1F2A">版</b>：M1 は req_changes（誰が・いつ・何を）で代用。リリース時点の固定は M3 で検討</p>
+<p><b style="color:#1B1F2A">リリース</b>：ストーリーの release（自由な文字列、例 R1）。マップの横線はこの値でまとめる</p>
+<p><b style="color:#1B1F2A">受け入れ条件</b>：given / when / then の 3 つの欄。M2 でテストのタグ（@TAPP-AC42）につなぐ</p>
+</div>
+</div>
+<p style="position:absolute;left:112px;bottom:52px;font-size:22px;color:#7A8091">11 / 15</p>
+</section>

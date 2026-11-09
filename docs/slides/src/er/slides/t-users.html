@@ -1,0 +1,41 @@
+<section id="t-users" data-transition="fade" style="background:#ECEBE4;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5B58D6;letter-spacing:2px">02 · テーブル ① 利用者</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">人間とエージェントは同じ users に入る</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:stretch;">
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#1B1F2A"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">users</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>ULID（PK）</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">kind</span></td><td>human | agent</td></tr>
+<tr><td><span style="color:#5B58D6">username</span></td><td>一意。Jira の name</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">display_name</span></td><td>表示名</td></tr>
+<tr><td><span style="color:#5B58D6">email</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">agent_model</span></td><td>agent のみ: モデル名</td></tr>
+<tr><td><span style="color:#5B58D6">avatar_color</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">is_owner</span></td><td>オーナーか</td></tr>
+<tr><td><span style="color:#5B58D6">active</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">password_hash</span></td><td>画面ログイン用（人間のみ）。PBKDF2。空 = なし</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+</table>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<table style="font-size:22px;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif">
+<tr style="background:#2F7D8C"><th style="width:44%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">api_tokens</th><th style="width:56%;color:#F5F4EF;font-family:'Noto Sans JP', Arial, sans-serif;padding:0.4em 0.6em">説明</th></tr>
+<tr><td><span style="color:#5B58D6">id</span></td><td>PK</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">user_id</span></td><td>→ users</td></tr>
+<tr><td><span style="color:#5B58D6">name</span></td><td>用途名</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">token_hash</span></td><td>SHA-256（一意）</td></tr>
+<tr><td><span style="color:#5B58D6">token_prefix</span></td><td>表示用 tk_ab12</td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">last_used_at</span></td><td></td></tr>
+<tr><td><span style="color:#5B58D6">expires_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">revoked_at</span></td><td>失効日時</td></tr>
+<tr><td><span style="color:#5B58D6">created_at</span></td><td></td></tr>
+<tr style="background:#ECEBE4"><td><span style="color:#5B58D6">token_enc</span></td><td>AES-256-GCM の控え（鍵は data/token.key）</td></tr>
+<tr><td><span style="color:#5B58D6">sessions（別表）</span></td><td>ログイン中の Cookie の SHA-256。期限 1 日 / 30 日（007）</td></tr>
+</table>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">3 / 15</p>
+</section>

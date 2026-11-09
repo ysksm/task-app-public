@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* Color tokens. Dark is the default (Linear-like); light follows the OS. */
+:root {
+  --bg: #101114;
+  --bg-sidebar: #0c0d10;
+  --bg-elev: #17181c;
+  --bg-hover: #1e2026;
+  --bg-active: #262932;
+  --border: #25272e;
+  --border-strong: #33363f;
+  --text: #e6e7ea;
+  --text-muted: #9a9ea8;
+  --text-faint: #6b6f79;
+  --accent: #6e6bf0;
+  --accent-soft: #6e6bf022;
+  --danger: #e5484d;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff;
+    --bg-sidebar: #f6f6f4;
+    --bg-elev: #ffffff;
+    --bg-hover: #f0f0ee;
+    --bg-active: #e7e7f6;
+    --border: #e6e6e3;
+    --border-strong: #d6d6d2;
+    --text: #1b1f2a;
+    --text-muted: #5b606b;
+    --text-faint: #8a8f99;
+    --accent: #5b58d6;
+    --accent-soft: #5b58d61a;
+    color-scheme: light;
+  }
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-sidebar: var(--bg-sidebar);
+  --color-elev: var(--bg-elev);
+  --color-hover: var(--bg-hover);
+  --color-active: var(--bg-active);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --font-sans: "Inter", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent-soft); }
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+
+.markdown p { margin: 0 0 0.6em; line-height: 1.6; }
+.markdown ul, .markdown ol { padding-left: 1.4em; margin: 0 0 0.6em; }
+.markdown ul { list-style: disc; }
+.markdown ol { list-style: decimal; }
+.markdown code { font-family: var(--font-mono); font-size: 0.92em; background: var(--bg-hover); padding: 0.1em 0.3em; border-radius: 4px; }
+.markdown pre { background: var(--bg-hover); padding: 0.8em; border-radius: 6px; overflow-x: auto; }
+.markdown h1, .markdown h2, .markdown h3 { font-weight: 600; margin: 0.8em 0 0.4em; }
+.markdown a { color: var(--accent); }

@@ -1,0 +1,20 @@
+{
+  "name": "taskapp-apitest",
+  "private": true,
+  "type": "module",
+  "description": "Black-box API tests. They only start $TASKAPP_BIN and talk HTTP, so any implementation (Go, Rust, ...) can be verified.",
+  "scripts": {
+    "test": "vitest run",
+    "gen:types": "openapi-typescript ../api/openapi.yaml -o src/schema.d.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@types/node": "^26.6.5",
+    "ajv": "^8.20.0",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7",
+    "yaml": "^2.9.1"
+  }
+}

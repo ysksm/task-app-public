@@ -1,0 +1,16 @@
+<section id="agent" data-transition="fade" style="background:#F5F4EF;color:#1B1F2A;font-family:'Noto Sans JP', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2F7D8C;letter-spacing:2px">03 · エージェントをつなぐ（MCP）</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.25;color:#1B1F2A">Claude Code に登録すれば、判断と確認が残る</h2>
+</div>
+<pre style="background:#1B1F2A;color:#E6E7EA;border-radius:12px;padding:28px 32px;font-size:24px;line-height:1.6;font-family:'JetBrains Mono', 'Courier New', monospace;white-space:pre-wrap">$ claude mcp add --scope user taskapp -e TASKAPP_TOKEN=&lt;トークン&gt; -- taskapp mcp
+# --scope  user: 自分・全プロジェクト / local: このプロジェクトだけ
+#          project: .mcp.json で共有（トークンは ${TASKAPP_TOKEN}）</pre>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">着手</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">list_my_issues → transition_issue</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">判断を残す</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">record_checkpoint（判断基準・確信度・進捗）</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">人間に聞く</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">ask_question → get_question_answers</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FCFBF8;border:1px solid #DDDBD3;border-radius:16px;padding:32px;"><h3 style="font-size:30px;font-weight:700;color:#2F7D8C">仕上げ</h3><p style="font-size:24px;line-height:1.6;color:#4A5160">request_acceptance で受入待ちへ</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:400px;font-size:24px;color:#7A8091">4 / 10</p>
+</section>
